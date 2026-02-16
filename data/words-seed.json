@@ -1,0 +1,1064 @@
+[
+  {
+    "definitions": [
+      {
+        "wordClass": "AV",
+        "definitions": [
+          "put a load on; laden;",
+          "claim that someone has done something wrong; accuse"
+        ],
+        "nsibidi": "穫"
+      }
+    ],
+    "pronunciation": "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/5f90c35e49f7e863e92b7270.mp3",
+    "tenses": {
+      "infinitive": "ibō",
+      "imperative": "bo",
+      "simplePast": "bòrò",
+      "presentPassive": "",
+      "simplePresent": "nà-èbo",
+      "presentContinuous": "nà-èbo",
+      "future": "gà-èbo"
+    },
+    "attributes": {
+      "isStandardIgbo": true,
+      "isAccented": true,
+      "isSlang": false,
+      "isConstructedTerm": false,
+      "isBorrowedTerm": false,
+      "isStem": true,
+      "isCommon": false
+    },
+    "tags": [],
+    "relatedTerms": [
+      "5f90c35e49f7e863e92b726c",
+      "630c00af5f1002836de0aa3d"
+    ],
+    "word": "bo",
+    "examples": [
+      {
+        "nsibidi": "",
+        "igbo": "Bịa, bo m ibu a n'isi.",
+        "english": "Come and put this load on my head.",
+        "pronunciations": [
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/644660c96e6f122ef5969fa5.mp3"
+        ]
+      },
+      {
+        "nsibidi": "",
+        "igbo": "O boro m ebubo.",
+        "english": "He accused me.",
+        "pronunciations": [
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/644660ca6e6f120bb6969faa.mp3"
+        ]
+      },
+      {
+        "nsibidi": "",
+        "igbo": "Ọ ga-ebo gị ebubo ụgha.",
+        "english": "She will accuse you falsely.",
+        "pronunciations": [
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/644660c96e6f1217bb969fa6.mp3"
+        ]
+      },
+      {
+        "nsibidi": "",
+        "igbo": "Ọ na-ebo Adanne ibu ahụ mgbe anyị batara.",
+        "english": "She was placing the load on Adanne's head when we came in.",
+        "pronunciations": [
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/644660c96e6f1210c7969fa7.mp3"
+        ]
+      },
+      {
+        "nsibidi": "",
+        "igbo": "Ọ na-ebokarị ndị mmadụ ebubo.",
+        "english": "He is always accusing people.",
+        "pronunciations": [
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/644660ca6e6f128f1d969fa9.mp3"
+        ]
+      },
+      {
+        "nsibidi": "",
+        "igbo": "Onye boro gị ibu arọ a?",
+        "english": "Who put all this heavy load on you?",
+        "pronunciations": [
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/644660ca6e6f12791c969fa8.mp3"
+        ]
+      },
+      {
+        "nsibidi": "",
+        "igbo": "Ọ dịghị mma ibo ya nnukwu ibu.",
+        "english": "It is not proper to place a heavy load on his head.",
+        "pronunciations": [
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/644664456e6f12078a96a2e0.mp3"
+        ]
+      },
+      {
+        "nsibidi": "",
+        "igbo": "O boro m ibu.",
+        "english": "He place the load on my head.",
+        "pronunciations": [
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/644664456e6f12449096a2d9.mp3"
+        ]
+      },
+      {
+        "nsibidi": "",
+        "igbo": "Achọrọ m ibo ya ibu.",
+        "english": "I want to place the load on her head.",
+        "pronunciations": [
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/644664456e6f12629c96a2df.mp3"
+        ]
+      }
+    ],
+    "id": "5f90c35e49f7e863e92b7270"
+  },
+  {
+    "definitions": [
+      {
+        "wordClass": "AV",
+        "definitions": [
+          "end a speech; declare a word",
+          "make a final say"
+        ]
+      }
+    ],
+    "stems": [
+      "6271292d57efb2b663f6bc91",
+      "5f90c35e49f7e863e92b7230"
+    ],
+    "pronunciation": "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/5f90c35f49f7e863e92b7e6d.webm",
+    "tenses": {
+      "infinitive": "ikwubì",
+      "imperative": "kwubìi",
+      "simplePast": "kwubìrì",
+      "presentPassive": "",
+      "simplePresent": "na-ekwubì",
+      "presentContinuous": "na-ekwubì",
+      "future": "ga-ekwubì"
+    },
+    "attributes": {
+      "isStandardIgbo": true,
+      "isAccented": true,
+      "isSlang": false,
+      "isConstructedTerm": false,
+      "isBorrowedTerm": false,
+      "isStem": false,
+      "isCommon": false
+    },
+    "tags": [],
+    "relatedTerms": [
+      "5f90c35f49f7e863e92b7d2f"
+    ],
+    "word": "kwubì",
+    "examples": [
+      {
+        "nsibidi": "",
+        "igbo": "Biko, kwubizie okwu ahụ.",
+        "english": "Please, end that speech.",
+        "pronunciations": [
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/63fc4f82b6ce86700fe2f860.mp3"
+        ]
+      },
+      {
+        "nsibidi": "",
+        "igbo": "Ihe o kwubiri enweghi nhicha.",
+        "english": "His final say can't be reverted.",
+        "pronunciations": [
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/63fc4f82b6ce868d42e2f85d.mp3"
+        ]
+      },
+      {
+        "nsibidi": "",
+        "igbo": "Ihe ahụ ka o kwubiri ma nwụọ.",
+        "english": "That was his last word and he died.",
+        "pronunciations": [
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/63fd963db55959048f417dbe.mp3"
+        ]
+      },
+      {
+        "nsibidi": "",
+        "igbo": "O kwubiri okwu ọma n'isi mụ.",
+        "english": "He declared a good word upon me.",
+        "pronunciations": [
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/63fc4f82b6ce868f9ae2f85c.mp3"
+        ]
+      },
+      {
+        "nsibidi": "",
+        "igbo": "Ugbua, anyị na-ekwubi na ọ ga-adịrị gị mma.",
+        "english": "Now, we declare that it is well with you.",
+        "pronunciations": [
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/63fc4f82b6ce8670fce2f85e.mp3"
+        ]
+      }
+    ],
+    "id": "5f90c35f49f7e863e92b7e6d"
+  },
+  {
+    "definitions": [
+      {
+        "wordClass": "AV",
+        "definitions": [
+          "fix a time or date for something to take place; schedule"
+        ]
+      }
+    ],
+    "pronunciation": "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/5f90c35e49f7e863e92b6e91.mp3",
+    "tenses": {
+      "infinitive": "iyī",
+      "imperative": "yìe",
+      "simplePast": "yìrì",
+      "presentPassive": "",
+      "simplePresent": "nà-èyi",
+      "presentContinuous": "nà-èyi",
+      "future": "gà-èyi"
+    },
+    "attributes": {
+      "isStandardIgbo": true,
+      "isAccented": true,
+      "isSlang": false,
+      "isConstructedTerm": false,
+      "isBorrowedTerm": false,
+      "isStem": true,
+      "isCommon": false
+    },
+    "tags": [
+      "commerce",
+      "education",
+      "medicine",
+      "law",
+      "politics"
+    ],
+    "relatedTerms": [
+      "63344320750e86542b67657d",
+      "630819c3b335f4010c47aeae",
+      "5f90c35f49f7e863e92b7d7b"
+    ],
+    "word": "yi",
+    "examples": [
+      {
+        "nsibidi": "",
+        "igbo": "A ga-eyi ya ka ọ manye n'ụbọchị abụghị Eke.",
+        "english": "It will be scheduled to fall on a day that is not Eke.",
+        "pronunciations": [
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/63bd93e0028db26bbb3d0745.mp3"
+        ]
+      },
+      {
+        "nsibidi": "",
+        "igbo": "Anyị chọrọ iyi asọmpi.",
+        "english": "We want to schedule a competition.",
+        "pronunciations": [
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/63bd93e0028db239913d0748.mp3"
+        ]
+      },
+      {
+        "nsibidi": "",
+        "igbo": "Ọ ga-alọta tupu anyị eyie agba.",
+        "english": "He shall arrive before we schedule an appointment.",
+        "pronunciations": [
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/63bda81061f46a9fdadf7a23.mp3"
+        ]
+      },
+      {
+        "nsibidi": "",
+        "igbo": "Anyị ga-eyi agba nzụkọ ọzọ.",
+        "english": "We shall fix a date for another meeting.",
+        "pronunciations": [
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/63bda81061f46a0f9bdf7a22.mp3"
+        ]
+      },
+      {
+        "nsibidi": "",
+        "igbo": "Ha na-eyi nzụkọ ọzọ.",
+        "english": "They are scheduling another meeting.",
+        "pronunciations": [
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/63bd93e0028db269df3d0746.mp3"
+        ]
+      }
+    ],
+    "id": "5f90c35e49f7e863e92b6e91"
+  },
+  {
+    "attributes": {
+      "isStandardIgbo": true,
+      "isAccented": false,
+      "isSlang": false,
+      "isConstructedTerm": false,
+      "isBorrowedTerm": false,
+      "isStem": false,
+      "isCommon": false
+    },
+    "tags": [
+      "language"
+    ],
+    "pronunciation": "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/6455271ca5cbaf7db05c3154.mp3",
+    "stems": [
+      "5f90c35e49f7e863e92b6f73"
+    ],
+    "definitions": [
+      {
+        "wordClass": "ESUF",
+        "definitions": [
+          "for a long time; for long"
+        ],
+        "nsibidiCharacters": []
+      }
+    ],
+    "tenses": {
+      "infinitive": null,
+      "imperative": null,
+      "simplePast": null,
+      "presentPassive": null,
+      "simplePresent": null,
+      "presentContinuous": null,
+      "future": null
+    },
+    "word": "-tè aka",
+    "examples": [
+      {
+        "nsibidi": "",
+        "type": "default",
+        "nsibidiCharacters": [],
+        "igbo": "Ha jetere aka n'ime ọhịa.",
+        "english": "They trekked for long inside the bush.",
+        "pronunciations": [
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/6462b27aa502096c6a5d7717.mp3"
+        ]
+      },
+      {
+        "nsibidi": "",
+        "type": "default",
+        "nsibidiCharacters": [],
+        "igbo": "Achọghị m ịnọte aka ebe ahụ.",
+        "english": "I do not want stay there for long.",
+        "pronunciations": [
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/6462b1bdff23266d5787d9fa.mp3"
+        ]
+      },
+      {
+        "nsibidi": "",
+        "type": "default",
+        "nsibidiCharacters": [],
+        "igbo": "Kaba ahụ rụtee aka n'ụlọọrụ ahụ.",
+        "english": "Endevour to work for long in that company.",
+        "pronunciations": [
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/6462b1bdff23260d4c87d9fd.mp3"
+        ]
+      },
+      {
+        "nsibidi": "",
+        "type": "default",
+        "nsibidiCharacters": [],
+        "igbo": "Anyị ga-agụte akwụkwọ aka taa.",
+        "english": "We are going to read for long today.",
+        "pronunciations": [
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/6462b1bdff2326783a87d9fb.mp3"
+        ]
+      },
+      {
+        "nsibidi": "",
+        "type": "default",
+        "nsibidiCharacters": [],
+        "igbo": "Emeka na-erite nri aka oge niile.",
+        "english": "Emeka eats for long every time.",
+        "pronunciations": [
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/6462b1bdff2326a44c87d9fc.mp3"
+        ]
+      }
+    ],
+    "id": "6455271ca5cbaf7db05c3154"
+  },
+  {
+    "definitions": [
+      {
+        "wordClass": "AV",
+        "definitions": [
+          "lay a complaint"
+        ],
+        "nsibidi": "匠寐匠s寀"
+      }
+    ],
+    "pronunciation": "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/5f90c35f49f7e863e92b7d33.webm",
+    "tenses": {
+      "infinitive": "ikpē m̄kpēsā",
+      "imperative": "kpēe m̄kpēsā",
+      "simplePast": "kpēre m̄kpēsā",
+      "presentPassive": "",
+      "simplePresent": "na-ekpē m̄kpēsā",
+      "presentContinuous": "na-ekpē m̄kpēsā",
+      "future": "ga-ekpē m̄kpēsā"
+    },
+    "attributes": {
+      "isStandardIgbo": true,
+      "isAccented": true,
+      "isSlang": false,
+      "isConstructedTerm": false,
+      "isBorrowedTerm": false,
+      "isStem": false,
+      "isCommon": false
+    },
+    "tags": [],
+    "word": "kpē m̄kpēsā",
+    "examples": [
+      {
+        "igbo": "Ọ na-ekpe mkpesa n'aka ndịuweojii.",
+        "english": "He is laying a complaint to the police.",
+        "pronunciations": []
+      }
+    ],
+    "id": "5f90c35f49f7e863e92b7d33"
+  },
+  {
+    "attributes": {
+      "isStandardIgbo": true,
+      "isAccented": true,
+      "isSlang": false,
+      "isConstructedTerm": false,
+      "isBorrowedTerm": false,
+      "isStem": false,
+      "isCommon": false
+    },
+    "definitions": [
+      {
+        "wordClass": "AV",
+        "definitions": [
+          "set a trap"
+        ]
+      }
+    ],
+    "tags": [
+      "technology"
+    ],
+    "pronunciation": "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/62e5cb9842b322a6bd4d131f.mp3",
+    "stems": [
+      "5f90c35f49f7e863e92b89e3",
+      "5f90c35f49f7e863e92b8877"
+    ],
+    "tenses": {
+      "infinitive": "isī ọ̄nyà",
+      "imperative": "sìe ọnyà",
+      "simplePast": "sìrì ọnyà",
+      "presentPassive": "",
+      "simplePresent": "nà-èsi ọnyà",
+      "presentContinuous": "nà-èsi ọnyà",
+      "future": "gà-èsi ọnyà"
+    },
+    "word": "si ọnyà",
+    "examples": [
+      {
+        "igbo": "Madụabuchi siri ọnya magburu nchi a.",
+        "english": "Madụabuchi set the trap that killed this grasscutter.",
+        "pronunciations": [
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/63331cb35743e660c46f1903.mp3"
+        ]
+      }
+    ],
+    "id": "63331cc4f0fa0325fd281f6d"
+  },
+  {
+    "definitions": [
+      {
+        "wordClass": "AV",
+        "definitions": [
+          "use a malleable material to create something; mold; sculpt;",
+          "shave"
+        ]
+      }
+    ],
+    "pronunciation": "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/5f90c35f49f7e863e92b7dee.webm",
+    "tenses": {
+      "infinitive": "ịkpụ̄",
+      "imperative": "kpụ̀ọ",
+      "simplePast": "kpụ̀rụ̀",
+      "presentPassive": "",
+      "simplePresent": "nà-àkpụ",
+      "presentContinuous": "nà-àkpụ",
+      "future": "gà-àkpụ"
+    },
+    "attributes": {
+      "isStandardIgbo": true,
+      "isAccented": true,
+      "isSlang": false,
+      "isConstructedTerm": false,
+      "isBorrowedTerm": false,
+      "isStem": true,
+      "isCommon": true
+    },
+    "tags": [
+      "arts",
+      "culture",
+      "fashion"
+    ],
+    "relatedTerms": [
+      "5f90c35e49f7e863e92b6f92",
+      "5f90c35e49f7e863e92b7552",
+      "63f6950b94440225b7b3a2c9",
+      "5f90c35f49f7e863e92b89da"
+    ],
+    "word": "kpụ",
+    "examples": [
+      {
+        "nsibidi": "",
+        "igbo": "Achọrọ m ịkpụ afụọnụ.",
+        "english": "I want to shave.",
+        "pronunciations": [
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/639e151c7c2779ad3fdc00da.mp3"
+        ]
+      },
+      {
+        "nsibidi": "",
+        "igbo": "Onyenkuzi m sịrị anyị kpụọ ite.",
+        "english": "My teacher told us to mold a pot.",
+        "pronunciations": [
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/639e151c7c2779ccfedc00dd.mp3"
+        ]
+      },
+      {
+        "nsibidi": "",
+        "igbo": "Ihe ndị ọ kpụrụ mara mma.",
+        "english": "The things he molded are beautiful.",
+        "pronunciations": [
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/639e151c7c2779609ddc00d8.mp3"
+        ]
+      },
+      {
+        "nsibidi": "",
+        "igbo": "Nna ya na-akpụ ihe dị ichiiche.",
+        "english": "His father molds variety of things.",
+        "pronunciations": [
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/639e151c7c2779cf5cdc00dc.mp3"
+        ]
+      }
+    ],
+    "id": "5f90c35f49f7e863e92b7dee"
+  },
+  {
+    "tenses": {
+      "infinitive": "ịhụtā",
+      "imperative": "hụta",
+      "simplePast": "hụ̀tàrà",
+      "presentPassive": "",
+      "simplePresent": "nà-ahụta",
+      "presentContinuous": "nà-ahụta",
+      "future": "gà-ahụta"
+    },
+    "attributes": {
+      "isStandardIgbo": true,
+      "isAccented": true,
+      "isSlang": false,
+      "isConstructedTerm": false,
+      "isBorrowedTerm": false,
+      "isStem": false,
+      "isCommon": false
+    },
+    "tags": [
+      "performing_arts",
+      "religion"
+    ],
+    "pronunciation": "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/648cab585b047d57fa38a0d1.mp3",
+    "stems": [
+      "5f90c35e49f7e863e92b7703"
+    ],
+    "relatedTerms": [
+      "5f90c35e49f7e863e92b7703"
+    ],
+    "word": "hụta",
+    "definitions": [
+      {
+        "wordClass": "AV",
+        "definitions": [
+          "spy a place"
+        ],
+        "nsibidiCharacters": []
+      }
+    ],
+    "examples": [
+      {
+        "nsibidi": "",
+        "nsibidiCharacters": [],
+        "type": "default",
+        "igbo": "Ọ ga-ahụta ihe na-eme.",
+        "english": "She will find out what is happening.",
+        "pronunciations": [
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/648cab425b047dc5c038a00c-5ae1dd44-cd4b-4907-bba1-4eb7511a1819.mp3"
+        ]
+      },
+      {
+        "nsibidi": "",
+        "nsibidiCharacters": [],
+        "type": "default",
+        "igbo": "Zie onye ga-ahụta ala ahụ.",
+        "english": "Send someone that will spy on that land.",
+        "pronunciations": [
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/648a5d02e39580b472cce68a-435e1dac-1b99-4e24-ae1b-24dbdc3dd076.mp3",
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/648a5d02e39580b472cce68a-f70e2a04-54af-4ea5-b767-194a7f785054.mp3",
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/648a5d02e39580b472cce68a-30f0aa56-4be5-421b-9828-ab42fb82782e.mp3",
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/648a5d02e39580b472cce68a-85f70a93-8966-42d2-953f-5c3ea58d67f0.mp3",
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/648a5d02e39580b472cce68a-a58fdc89-8552-42ab-aa65-0d327dfbf09e.mp3"
+        ]
+      },
+      {
+        "nsibidi": "",
+        "nsibidiCharacters": [],
+        "type": "default",
+        "igbo": "Ndị agha anyị na-ahụta oke ọhịa ahụ ugbu a.",
+        "english": "Our soldiers are spying on that thick forest now.",
+        "pronunciations": [
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/648a5d02e39580389dcce68e-a7d438bd-26c0-4010-8907-44bb2c736949.mp3",
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/648a5d02e39580389dcce68e-87d6dcec-906a-458d-bee3-a081dcc3b36b.mp3",
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/648a5d02e39580389dcce68e-af6ddc2d-4f80-48a6-bf88-7354d3a285bf.mp3",
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/648a5d02e39580389dcce68e-773e9155-06a8-47ba-ae20-8b24e5fe802a.mp3",
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/648a5d02e39580389dcce68e-e0109e24-0138-4574-b78e-6da1772bef78.mp3"
+        ]
+      },
+      {
+        "nsibidi": "",
+        "nsibidiCharacters": [],
+        "type": "default",
+        "igbo": "Ọrụ gị naanị bụ hụta ihe na-eme ebe e ziri gị.",
+        "english": "Your job is to only spy on the place you are sent.",
+        "pronunciations": [
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/648a5d02e39580d45dcce690-de1c745b-262a-4b37-a191-b920fe88a246.mp3",
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/648a5d02e39580d45dcce690-54204a2b-596f-4c9e-8440-dd783836e2d1.mp3",
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/648a5d02e39580d45dcce690-551c1f79-55e6-46be-8e42-99e0a52bcbc9.mp3",
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/648a5d02e39580d45dcce690-5819c85f-2326-4cb5-9b95-73a9d6d00d27.mp3",
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/648a5d02e39580d45dcce690-d3c57439-8908-4cac-b2ab-e74f92d90898.mp3"
+        ]
+      },
+      {
+        "nsibidi": "",
+        "nsibidiCharacters": [],
+        "type": "default",
+        "igbo": "Gaa, hụta etu ha dị.",
+        "english": "Go and find out how they are.",
+        "pronunciations": [
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/648cab425b047d446538a006-df332037-909b-4d93-9c46-b798b1bb42f5.mp3"
+        ]
+      },
+      {
+        "nsibidi": "",
+        "nsibidiCharacters": [],
+        "type": "default",
+        "igbo": "Ọ na-ahụta anyị site n'ebe ọ nọ.",
+        "english": "He sees us from where we are.",
+        "pronunciations": [
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/648cab425b047dc83738a00a-eedd948f-e469-4372-86cc-7a7941f38a27.mp3"
+        ]
+      },
+      {
+        "nsibidi": "",
+        "nsibidiCharacters": [],
+        "type": "default",
+        "igbo": "Ọ hụtara ha mgbe ha batara.",
+        "english": "He saw them when they entered.",
+        "pronunciations": [
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/648cab425b047dfd6038a00e-17d7ceae-77e6-4670-a899-c4fc97452f1d.mp3"
+        ]
+      },
+      {
+        "nsibidi": "",
+        "nsibidiCharacters": [],
+        "type": "default",
+        "igbo": "Ọ hụtaara Amaka di.",
+        "english": "He a saw a husband for Amaka.",
+        "pronunciations": [
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/648cab425b047d3e4a38a008-7b534071-340c-425e-a0f9-db2ee19f7d9c.mp3"
+        ]
+      },
+      {
+        "nsibidi": "",
+        "nsibidiCharacters": [],
+        "type": "default",
+        "igbo": "Mozis zipuru ndị jere leta ala Jeriko.",
+        "english": "Moses sent people that spied on Jerico.",
+        "pronunciations": [
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/648a5d02e39580dcbdcce686-d75a2a6d-47cb-4089-b80d-cc5b946a6d56.mp3",
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/648a5d02e39580dcbdcce686-65b284b3-56a6-41f4-953d-2352a663a001.mp3",
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/648a5d02e39580dcbdcce686-3a2b4b08-c3f5-4bfc-bfd4-c42abe9bc42d.mp3",
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/648a5d02e39580dcbdcce686-cc90d404-ee2d-4a57-bfaa-e33c0e46ef34.mp3",
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/648a5d02e39580dcbdcce686-4e70db89-4fb1-44fc-a000-9c1f0c530abf.mp3"
+        ]
+      },
+      {
+        "nsibidi": "",
+        "nsibidiCharacters": [],
+        "type": "default",
+        "igbo": "Ị bịara ịhụta ihe na-eme n'ụlọ m?",
+        "english": "Did you come to spy on my house?",
+        "pronunciations": [
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/648a5d02e395802bcdcce688-0e38da1b-7ec9-4f06-8462-280f8e92c051.mp3",
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/648a5d02e395802bcdcce688-c192851b-5f50-44a3-81c5-3b48c4f3b720.mp3",
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/648a5d02e395802bcdcce688-ad9ec9d4-d6bd-45c4-af83-ae5baf444f94.mp3",
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/648a5d02e395802bcdcce688-abe8cebc-7a53-4735-89d5-1faf31c5e1f7.mp3",
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/648a5d02e395802bcdcce688-6ec1aba0-2d6d-4fb3-9d14-540e2d2edb46.mp3"
+        ]
+      },
+      {
+        "nsibidi": "",
+        "nsibidiCharacters": [],
+        "type": "default",
+        "igbo": "E jidere ndị bịara ịhụta ala anyị.",
+        "english": "Those that came to spy on our land were captured.",
+        "pronunciations": [
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/648a5d02e3958042f1cce68c-8aff962e-7451-450e-8965-07f15b83cf51.mp3",
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/648a5d02e3958042f1cce68c-d7504a3a-c6d6-40ff-a90e-afa6f029232b.mp3",
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/648a5d02e3958042f1cce68c-953877f8-630f-48e2-9ff3-1bfa316df960.mp3",
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/648a5d02e3958042f1cce68c-5d4cbc8f-e169-4013-891d-e5ce16c792f6.mp3",
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/648a5d02e3958042f1cce68c-4c0d0610-1eb8-4a84-bf02-32a18a6239f7.mp3"
+        ]
+      }
+    ],
+    "id": "648cab585b047d57fa38a0d1"
+  },
+  {
+    "definitions": [
+      {
+        "wordClass": "AV",
+        "definitions": [
+          "tell a story; give news;",
+          "(colloq.) to lie, fib"
+        ],
+        "nsibidi": "揮訟",
+        "nsibidiCharacters": []
+      }
+    ],
+    "stems": [
+      "5f90c35e49f7e863e92b6fb7"
+    ],
+    "pronunciation": "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/5f90c35e49f7e863e92b6fb5.mp3",
+    "tenses": {
+      "infinitive": "ịkọ̄ ākụ̄kọ̄",
+      "imperative": "kọ̀ọ akụkọ",
+      "simplePast": "kọ̀rọ̀ akụkọ",
+      "presentPassive": "",
+      "simplePresent": "nà-àkọ akụkọ",
+      "presentContinuous": "nà-àkọ akụkọ",
+      "future": "gà-àkọ akụkọ"
+    },
+    "attributes": {
+      "isStandardIgbo": true,
+      "isAccented": true,
+      "isSlang": false,
+      "isConstructedTerm": false,
+      "isBorrowedTerm": false,
+      "isStem": false,
+      "isCommon": false
+    },
+    "tags": [
+      "visual_arts",
+      "culture",
+      "performing_arts"
+    ],
+    "relatedTerms": [
+      "634e5c71451e5f2862f9f1ce",
+      "643d4b471d4fde3f82680a36"
+    ],
+    "word": "kọ akụkọ",
+    "examples": [
+      {
+        "nsibidi": "",
+        "nsibidiCharacters": [],
+        "type": "default",
+        "igbo": "Ada na-akọ akụkọ mgbe m bịara.",
+        "english": "Ada was telling a story when I came.",
+        "pronunciations": [
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/6479f88656315e64bea8d611-121d39a8-9f97-448d-b99e-436d7da1c975.mp3"
+        ]
+      },
+      {
+        "nsibidi": "",
+        "nsibidiCharacters": [],
+        "type": "default",
+        "igbo": "Chike na-akọ akụkọ ahụ oge ọbụla.",
+        "english": "Chike tells that story all the time.",
+        "pronunciations": [
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/6479f7ec56315e30b5a8d58a-6a32931c-9649-4d93-bd42-0f06237c926a.mp3",
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/6479f7ec56315e30b5a8d58a-7ba85726-c1e4-4556-87c5-10c8fb07578a.mp3"
+        ]
+      },
+      {
+        "nsibidi": "",
+        "nsibidiCharacters": [],
+        "type": "default",
+        "igbo": "Ị ga-akọ akụkọ banyere ndụ gị.",
+        "english": "You will tell the story about your life.",
+        "pronunciations": [
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/647a772fb77e7d3290b2de8f-ee8a13b7-9b10-41ca-abd7-9b2da275e62f.mp3"
+        ]
+      },
+      {
+        "nsibidi": "",
+        "nsibidiCharacters": [],
+        "type": "default",
+        "igbo": "Onye na-akọ akụkọ?",
+        "english": "Who is telling a story?",
+        "pronunciations": [
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/647a772fb77e7d7889b2de8b-b63ec073-ed27-4590-98ad-710ada44c407.mp3"
+        ]
+      },
+      {
+        "nsibidi": "",
+        "nsibidiCharacters": [],
+        "type": "default",
+        "igbo": "Onye kọro akụkọ apụọla.",
+        "english": "The person who told the story has gone.",
+        "pronunciations": [
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/647a772fb77e7d50b2b2de8d-2174d539-f6fc-4fdd-b73f-b044182def80.mp3"
+        ]
+      }
+    ],
+    "id": "5f90c35e49f7e863e92b6fb5"
+  },
+  {
+    "tenses": {
+      "infinitive": "ikùsà",
+      "imperative": "kùsa",
+      "simplePast": "kùsàrà",
+      "presentPassive": "",
+      "simplePresent": "nà-ekùsa",
+      "presentContinuous": "nà-ekùsa",
+      "future": "gà-ekùsa"
+    },
+    "attributes": {
+      "isStandardIgbo": true,
+      "isAccented": false,
+      "isSlang": false,
+      "isConstructedTerm": false,
+      "isBorrowedTerm": false,
+      "isStem": false,
+      "isCommon": false
+    },
+    "tags": [
+      "performing_arts"
+    ],
+    "pronunciation": "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/648b2552ecaee5c38e40807b.mp3",
+    "stems": [
+      "5f90c35f49f7e863e92b7ca2"
+    ],
+    "relatedTerms": [
+      "5f90c35f49f7e863e92b7ca2",
+      "647c498d538c92582582cb14"
+    ],
+    "word": "kùsa",
+    "definitions": [
+      {
+        "wordClass": "AV",
+        "definitions": [
+          "Drop a child or thing carefully"
+        ],
+        "nsibidiCharacters": []
+      }
+    ],
+    "examples": [
+      {
+        "nsibidi": "",
+        "nsibidiCharacters": [],
+        "type": "default",
+        "igbo": "Kusa nnwa ahụ ebe a.",
+        "english": "Drop that child here.",
+        "pronunciations": [
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/648b1920a016c3ddf5ca475c-d1a639f6-626d-4be6-a5b6-101093a63806.mp3",
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/648b1920a016c3ddf5ca475c-a5b197d1-467f-4d38-b7bb-be1ef295b8ec.mp3",
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/648b1920a016c3ddf5ca475c-e13727b2-26e3-4913-a633-492349a14fc1.mp3",
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/648b1920a016c3ddf5ca475c-9e7f29d3-4cd8-4d9d-872f-ab22d9f7e8d6.mp3"
+        ]
+      },
+      {
+        "nsibidi": "",
+        "nsibidiCharacters": [],
+        "type": "default",
+        "igbo": "Kedu ebe i kusara Adeeze?",
+        "english": "Where did you dro",
+        "pronunciations": [
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/648b1920a016c37d97ca4760-6cd19fb6-46aa-452e-af0d-31631f90972d.mp3",
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/648b1920a016c37d97ca4760-b7761ead-22cc-461d-be2b-de1775748edf.mp3",
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/648b1920a016c37d97ca4760-da6bc9fe-c41d-48c1-8dd9-da6ebc80a98b.mp3",
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/648b1920a016c37d97ca4760-4f55cc17-4d1e-43dc-845c-a89fc44d4021.mp3"
+        ]
+      },
+      {
+        "nsibidi": "",
+        "nsibidiCharacters": [],
+        "type": "default",
+        "igbo": "Nne gị ga-ekusa nnwa ya n'ụlọ enyi ya.",
+        "english": "Your mother will drop her child at her friend's place.",
+        "pronunciations": [
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/648b1920a016c30f09ca4762-fb2df008-20a7-423a-95b9-c0126d40c6b6.mp3",
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/648b1920a016c30f09ca4762-4c59101f-aa7f-4c6c-a60b-a71c38b03fd4.mp3",
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/648b1920a016c30f09ca4762-90d73bff-2e5c-4034-a39e-c9ab0c9acabb.mp3",
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/648b1920a016c30f09ca4762-f1b6e042-0e39-43ed-8e06-54c225ebda56.mp3"
+        ]
+      },
+      {
+        "nsibidi": "",
+        "nsibidiCharacters": [],
+        "type": "default",
+        "igbo": "Ahụrụ m ka ọ na-ekusa nnwa ahụ n'oche.",
+        "english": "I saw her keeping that child on the chair.",
+        "pronunciations": [
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/648b1e95a016c336a5ca4c76-fca351db-dff2-4262-b8e5-c46bb043b164.mp3",
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/648b1e95a016c336a5ca4c76-a497ef41-1163-40ef-a7db-32f788c666ef.mp3",
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/648b1e95a016c336a5ca4c76-9f361463-ec80-4435-962e-47448b3ab21f.mp3"
+        ]
+      },
+      {
+        "nsibidi": "",
+        "nsibidiCharacters": [],
+        "type": "default",
+        "igbo": "Ebee ka m nwere ike ikusa ya?",
+        "english": "Where can I keep her?",
+        "pronunciations": [
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/648b1920a016c36799ca4764-7262587d-d833-4dc2-b2a7-e9db89c0bb2a.mp3",
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/648b1920a016c36799ca4764-aab1975f-0985-4766-ad32-2616bf674c43.mp3",
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/648b1920a016c36799ca4764-d5f709c3-8ab8-4df6-aad2-1b6c58a33bf5.mp3",
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/648b1920a016c36799ca4764-660b0e07-fec0-4be2-8058-e117a30c3e35.mp3"
+        ]
+      },
+      {
+        "nsibidi": "",
+        "nsibidiCharacters": [],
+        "type": "default",
+        "igbo": "Gịnị mere ị ji kusa nnwa ahụ ebe ahụ?",
+        "english": "Why did you keep that child there?",
+        "pronunciations": [
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/648b1e95a016c30ffaca4c74-1949ee3e-ea7b-4be5-83d5-c8df41a7adbb.mp3",
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/648b1e95a016c30ffaca4c74-ec7d14bb-eac9-4512-a96c-79e0d99463ab.mp3"
+        ]
+      },
+      {
+        "nsibidi": "",
+        "nsibidiCharacters": [],
+        "type": "default",
+        "igbo": "Olee ebe a na-ekusa ụmụaka ebe a?",
+        "english": "Where are the children kept here?",
+        "pronunciations": [
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/648b1920a016c332d4ca475e-22886a9a-40dc-4dbb-aeba-e82ae9bfd080.mp3",
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/648b1920a016c332d4ca475e-b88d4be1-2899-4591-8866-17596eb68f80.mp3",
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/648b1920a016c332d4ca475e-2023a48a-18c6-47a6-ab67-2ff0e058e84b.mp3",
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/648b1920a016c332d4ca475e-bb14d423-3e61-4340-90c7-dd34e1a5a335.mp3"
+        ]
+      },
+      {
+        "nsibidi": "",
+        "nsibidiCharacters": [],
+        "type": "default",
+        "igbo": "O kusara nwa ya n'akwa.",
+        "english": "She dropped her child on the bed.",
+        "pronunciations": [
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/648b7bbceab3f66d8c74a9d5-679780f4-69ad-4495-b879-d30a8dab034c.mp3"
+        ]
+      },
+      {
+        "nsibidi": "",
+        "nsibidiCharacters": [],
+        "type": "default",
+        "igbo": "Gaa kusa ya ebe ahụ.",
+        "english": "Go and drop her there.",
+        "pronunciations": [
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/648b7bbceab3f6fc4974a9e0-7f117a78-879c-4e1a-8c5f-2b49ba8b34d0.mp3"
+        ]
+      },
+      {
+        "nsibidi": "",
+        "nsibidiCharacters": [],
+        "type": "default",
+        "igbo": "Ọ na-ekusa nwa ahụ na be nne ya.",
+        "english": "She drops off that child at her mother's place.",
+        "pronunciations": [
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/648b599756dfea2bade4bc05-a34a05ff-657c-4674-93b4-1933eb1f503e.mp3",
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/648b599756dfea2bade4bc05-a8f8a2de-8957-4b3a-bfb4-8055922270c9.mp3",
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/648b599756dfea2bade4bc05-cd8523f6-baa0-4d48-b919-493d1a9b073f.mp3",
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/648b599756dfea2bade4bc05-329bfc1e-78fd-4ca5-8b51-44cabe8a4311.mp3",
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/648b599756dfea2bade4bc05-2d777116-c897-44bc-a088-f0d616129f20.mp3"
+        ]
+      },
+      {
+        "nsibidi": "",
+        "nsibidiCharacters": [],
+        "type": "default",
+        "igbo": "Achọrọ m ikusa ya n'ụlọ gị.",
+        "english": "I want to drop her at your place.",
+        "pronunciations": [
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/648b599756dfea15fee4bc0b-f72ab2fc-ff36-475f-aa58-272b5441084b.mp3",
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/648b599756dfea15fee4bc0b-392c027b-5e3b-406f-bf29-2ca66e35c650.mp3",
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/648b599756dfea15fee4bc0b-d0cd23ac-4204-4787-9726-1563f18554b1.mp3",
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/648b599756dfea15fee4bc0b-9a38f135-dd12-40df-b0dc-7fdd0d8f9ba9.mp3",
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/648b599756dfea15fee4bc0b-86995d9a-fb19-4673-b94e-c4631acefb3d.mp3"
+        ]
+      },
+      {
+        "nsibidi": "",
+        "nsibidiCharacters": [],
+        "type": "default",
+        "igbo": "Ebee ka i kusara nwa gị?",
+        "english": "Where did you drop your child?",
+        "pronunciations": [
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/648b599756dfea1a8ce4bc07-2716c055-f71a-43f0-b6ea-ab7bbc2474f1.mp3",
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/648b599756dfea1a8ce4bc07-3bfda912-1b82-4144-ae50-e3995e81a369.mp3",
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/648b599756dfea1a8ce4bc07-3ab0fc52-095d-4c65-82cd-dd26163efe02.mp3",
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/648b599756dfea1a8ce4bc07-2767734b-542d-4e72-89ce-1ee7bdfc116e.mp3",
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/648b599756dfea1a8ce4bc07-f1077dbb-793d-4a03-93f7-94b155d6ea8b.mp3"
+        ]
+      },
+      {
+        "nsibidi": "",
+        "nsibidiCharacters": [],
+        "type": "default",
+        "igbo": "Olee ndị chọrọ ikusa ụmụ ha na be m?",
+        "english": "Which people want to drop their kids in my house?",
+        "pronunciations": [
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/648b7bbceab3f6edad74a9de-6d5fe360-b356-4465-863c-70a022533f48.mp3"
+        ]
+      },
+      {
+        "nsibidi": "",
+        "nsibidiCharacters": [],
+        "type": "default",
+        "igbo": "Ha na-ekusa ụmụ ejima ahụ n'elu oche.",
+        "english": "They drop the twins on the chair.",
+        "pronunciations": [
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/648b7bbceab3f6215174a9e2-0d2265a4-68f9-4820-a665-d37d3f0f7ebd.mp3"
+        ]
+      },
+      {
+        "nsibidi": "",
+        "nsibidiCharacters": [],
+        "type": "default",
+        "igbo": "Ume na-ekusa nwa ya na be Ngọzị.",
+        "english": "Ume drops her child at Ngọzị's house.",
+        "pronunciations": [
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/648b7bbceab3f637e574a9dc-8c62e76c-06e2-441b-a47c-f174d15eff63.mp3"
+        ]
+      },
+      {
+        "nsibidi": "",
+        "nsibidiCharacters": [],
+        "type": "default",
+        "igbo": "Ọ ga-ekusa nwa ya na be m.",
+        "english": "She will drop her baby at my place.",
+        "pronunciations": [
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/648b599756dfea5861e4bc0d-0ba16003-5058-4aa4-8093-f52cf745b27e.mp3",
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/648b599756dfea5861e4bc0d-059e6ac6-5fd1-4fc6-9f2f-58ffd6e0efd6.mp3",
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/648b599756dfea5861e4bc0d-48b3967c-fe46-4200-ad27-c04eb300af02.mp3",
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/648b599756dfea5861e4bc0d-c9573f17-5488-49dc-8939-9897378eea5b.mp3",
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/648b599756dfea5861e4bc0d-6bca3c3d-10a3-4dfa-9525-7a4e59738bc3.mp3"
+        ]
+      },
+      {
+        "nsibidi": "",
+        "nsibidiCharacters": [],
+        "type": "default",
+        "igbo": "Ahụrụ m ka Chika na-ekusa nwa ahụ n'oche.",
+        "english": "I saw when Chika dropped that child on the chair.",
+        "pronunciations": [
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/648b599756dfea1d8ce4bc09-7463664a-6af6-4cac-8361-cf89b8cf7052.mp3",
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/648b599756dfea1d8ce4bc09-cedf9d41-110b-4efd-bc8b-8d997715752a.mp3",
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/648b599756dfea1d8ce4bc09-dc6c12c7-b1c4-4231-bc11-f3391b53c79b.mp3",
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/648b599756dfea1d8ce4bc09-6a215cd5-53f3-4ac4-94a3-a0fe432508d1.mp3",
+          "https://igbo-api.s3.us-east-2.amazonaws.com/audio-pronunciations/648b599756dfea1d8ce4bc09-2a29675e-ab59-487b-9328-02b24c646eeb.mp3"
+        ]
+      }
+    ],
+    "id": "648b2552ecaee5c38e40807b"
+  }
+]

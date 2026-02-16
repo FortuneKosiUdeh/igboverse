@@ -1,3 +1,5 @@
+Igboverse is a web app focused on mastering Igbo verb conjugation through interactive drills and AI-powered feedback. Its goal is to make learning Igbo grammar intuitive by helping users recognize verb patterns, tones, and tense changes in real context. By combining modern design with linguistic accuracy, Igboverse makes it easier for learners to understand how Igbo verbs transform across subjects and tenses—turning a complex system into a fun, structured learning experience.
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started

@@ -1,0 +1,42 @@
+[
+  {
+    "id": "basic-verb-1",
+    "text": "M {verb} nri.",
+    "blanks": [
+      {
+        "name": "verb",
+        "wordClass": "verb"
+      }
+    ]
+  },
+  {
+    "id": "basic-verb-2",
+    "text": "Ha {verb} mmiri.",
+    "blanks": [
+      {
+        "name": "verb",
+        "wordClass": "verb"
+      }
+    ]
+  },
+  {
+    "id": "basic-noun-1",
+    "text": "Ọ bụ {noun} ahụ.",
+    "blanks": [
+      {
+        "name": "noun",
+        "wordClass": "noun"
+      }
+    ]
+  },
+  {
+    "id": "basic-noun-2",
+    "text": "Anyị hụrụ {noun} n'ahịa.",
+    "blanks": [
+      {
+        "name": "noun",
+        "wordClass": "noun"
+      }
+    ]
+  }
+]

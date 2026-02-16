@@ -1,0 +1,197 @@
+/* ==============================
+   Dialect Map Component Styles
+   ============================== */
+
+.dialect-map-container {
+  background: white;
+  border-radius: 16px;
+  border: 1px solid #e5e7eb;
+  border-left: 4px solid #7c3aed;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.dialect-map-header {
+  margin-bottom: 16px;
+}
+
+.dialect-map-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 18px;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0 0 4px 0;
+}
+
+.dialect-map-title svg {
+  color: #7c3aed;
+}
+
+.dialect-map-subtitle {
+  font-size: 13px;
+  color: #9ca3af;
+  margin: 0;
+}
+
+.dialect-map-wrapper {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+@media (max-width: 640px) {
+  .dialect-map-wrapper {
+    flex-direction: column;
+  }
+}
+
+/* SVG Map */
+.dialect-map-svg {
+  flex: 1;
+  min-width: 0;
+  max-width: 320px;
+  height: auto;
+  border-radius: 12px;
+  border: 1px solid #f3f4f6;
+  background: #fafafa;
+}
+
+.dialect-map-state {
+  cursor: pointer;
+  transition: fill 0.2s ease, stroke-width 0.2s ease;
+}
+
+.dialect-map-state:focus {
+  outline: none;
+}
+
+.dialect-map-state:focus-visible {
+  outline: 2px solid #7c3aed;
+  outline-offset: 1px;
+}
+
+.dialect-map-neighbor {
+  pointer-events: none;
+}
+
+.dialect-map-label {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  user-select: none;
+}
+
+/* Info Panel */
+.dialect-map-info {
+  flex: 1;
+  min-width: 180px;
+  padding: 16px;
+  background: #f9fafb;
+  border-radius: 12px;
+  border: 1px solid #f3f4f6;
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.dialect-info-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid;
+}
+
+.dialect-info-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.dialect-info-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.dialect-info-communities {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.dialect-info-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.dialect-info-value {
+  font-size: 13px;
+  color: #4b5563;
+  line-height: 1.4;
+}
+
+.dialect-info-coverage {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.dialect-info-count {
+  font-size: 16px;
+  font-weight: 700;
+  color: #7c3aed;
+}
+
+.dialect-info-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  font-size: 13px;
+  color: #9ca3af;
+  text-align: center;
+}
+
+/* Standard Igbo button */
+.dialect-standard-btn {
+  width: 100%;
+  padding: 10px 16px;
+  border-radius: 10px;
+  border: 2px solid #e5e7eb;
+  background: #f9fafb;
+  font-size: 14px;
+  font-weight: 500;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-bottom: 12px;
+}
+
+.dialect-standard-btn:hover {
+  border-color: #7c3aed;
+  background: #f5f3ff;
+  color: #7c3aed;
+}
+
+.dialect-standard-btn-active {
+  border-color: #7c3aed;
+  background: #ede9fe;
+  color: #7c3aed;
+  font-weight: 600;
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+}
+
+/* Note text */
+.dialect-map-note {
+  font-size: 12px;
+  color: #9ca3af;
+  margin: 0;
+  text-align: center;
+}

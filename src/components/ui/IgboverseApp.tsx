@@ -1,227 +1,262 @@
 "use client";
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Home, BookOpen, Zap, Trophy, User, Volume2, Check, X, RotateCw, ChevronRight } from 'lucide-react';
+import { Home, BookOpen, Zap, Trophy, User as UserIcon, Check, X, RotateCw, ChevronRight, Lock, Book, Globe, Volume2, Settings } from 'lucide-react';
+import { getUserLevel, updateStreak, getStreak, XP_PER_CORRECT_ANSWER } from '@/lib/rewards';
+import { getVerbs, getStructureQuestions } from '@/lib/igbo-api';
+import { progressStore } from '@/lib/persistence';
+import { Verb } from '@/lib/drills/VerbDrillEngine';
+import { ConjugationEngine, ConjugationState } from '@/lib/drills/ConjugationEngine';
+import { StructureDrillEngine, StructureState } from '@/lib/drills/StructureDrillEngine';
+import { getUser, saveUser, type User } from '@/lib/persistence/userStore';
+import { addXP } from '@/lib/progressTracker';
+import DialectMap from '@/components/ui/DialectMap';
+import '@/components/ui/DialectMap.css';
+import {
+  DialectGroup,
+  getSelectedDialect,
+  setSelectedDialect,
+  resolveDialectVariant,
+  getDialectGroupLabel
+} from '@/lib/dialect';
 
-// Type Definitions
-type User = {
-  email: string;
-  id: number;
-} | null;
-
-type Verb = {
-  id: number;
-  infinitive: string;
-  english: string;
-  conjugations: {
-    present: { m: string; f: string; we: string; they: string };
-    past: { m: string; f: string; we: string; they: string };
-    future: { m: string; f: string; we: string; they: string };
-  };
-};
-
-type Flashcard = {
-  id: number;
-  igbo: string;
-  english: string;
-  type: string;
-};
-
-type Feedback = {
-  correct: boolean;
-  correctAnswer: string;
-} | null;
-
-type TenseKey = 'present' | 'past' | 'future';
-type PronounKey = 'm' | 'f' | 'we' | 'they';
-
-// Mock Data - In production, this comes from Supabase
-const MOCK_VERBS: Verb[] = [
-  {
-    id: 1,
-    infinitive: 'iri',
-    english: 'to eat',
-    conjugations: {
-      present: { m: 'ana m eri', f: 'ana m eri', we: 'anyi na-eri', they: 'ha na-eri' },
-      past: { m: 'e riri m', f: 'e riri m', we: 'anyi riri', they: 'ha riri' },
-      future: { m: 'ga m eri', f: 'ga m eri', we: 'anyi ga-eri', they: 'ha ga-eri' }
-    }
-  },
-  {
-    id: 2,
-    infinitive: 'ịgụ',
-    english: 'to read',
-    conjugations: {
-      present: { m: 'ana m agụ', f: 'ana m agụ', we: 'anyi na-agụ', they: 'ha na-agụ' },
-      past: { m: 'e gụrụ m', f: 'e gụrụ m', we: 'anyi gụrụ', they: 'ha gụrụ' },
-      future: { m: 'ga m agụ', f: 'ga m agụ', we: 'anyi ga-agụ', they: 'ha ga-agụ' }
-    }
-  },
-  {
-    id: 3,
-    infinitive: 'ịbịa',
-    english: 'to come',
-    conjugations: {
-      present: { m: 'ana m abịa', f: 'ana m abịa', we: 'anyi na-abịa', they: 'ha na-abịa' },
-      past: { m: 'abịara m', f: 'abịara m', we: 'anyi bịara', they: 'ha bịara' },
-      future: { m: 'ga m abịa', f: 'ga m abịa', we: 'anyi ga-abịa', they: 'ha ga-abịa' }
-    }
-  }
-];
-
-const MOCK_FLASHCARDS: Flashcard[] = [
-  { id: 1, igbo: 'nri', english: 'food', type: 'noun' },
-  { id: 2, igbo: 'akwụkwọ', english: 'book', type: 'noun' },
-  { id: 3, igbo: 'ụlọ', english: 'house', type: 'noun' },
-  { id: 4, igbo: 'ọma', english: 'good', type: 'adjective' },
-  { id: 5, igbo: 'ukwu', english: 'big', type: 'adjective' }
-];
-
-const PRONOUNS = [
-  { key: 'm' as PronounKey, label: 'I (m)', igbo: 'M/Mụ' },
-  { key: 'f' as PronounKey, label: 'I (f)', igbo: 'M/Mụ' },
-  { key: 'we' as PronounKey, label: 'We', igbo: 'Anyị' },
-  { key: 'they' as PronounKey, label: 'They', igbo: 'Ha' }
-];
-
-const TENSES = [
-  { key: 'present' as TenseKey, label: 'Present' },
-  { key: 'past' as TenseKey, label: 'Past' },
-  { key: 'future' as TenseKey, label: 'Future' }
-];
 
 export default function IgboverseApp() {
   const [currentView, setCurrentView] = useState('home');
   const [user, setUser] = useState<User>(null);
-  const [userStats, setUserStats] = useState({ xp: 0, streak: 0, accuracy: 0 });
-  
+
+  // XP-SYSTEM
+  const [xp, setXp] = useState(0);
+  const [level, setLevel] = useState(1);
+
+  // STREAK-SYSTEM
+  const [streak, setStreak] = useState(0);
+
+  // Gating
+  const [isConjugationUnlocked, setIsConjugationUnlocked] = useState(false);
+
   // Login/Auth State
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLogin, setIsLogin] = useState(true);
 
-  // Conjugation Drill State
-  const [currentVerb, setCurrentVerb] = useState<Verb | null>(null);
-  const [selectedTense, setSelectedTense] = useState<TenseKey>('present');
-  const [selectedPronoun, setSelectedPronoun] = useState<PronounKey>('m');
-  const [userAnswer, setUserAnswer] = useState('');
-  const [feedback, setFeedback] = useState<Feedback>(null);
-  const [score, setScore] = useState(0);
-  const [questionsAnswered, setQuestionsAnswered] = useState(0);
+  // Dialect State
+  const [selectedDialectGroup, setSelectedDialectGroup] = useState<DialectGroup>('standard');
 
-  // Flashcard State
-  const [currentCard, setCurrentCard] = useState(0);
-  const [showAnswer, setShowAnswer] = useState(false);
-  const [cardStats, setCardStats] = useState({ correct: 0, total: 0 });
+  // Drill Engines
+  const drillEngine = useRef(new ConjugationEngine([]));
+  const [drillState, setDrillState] = useState<ConjugationState>(drillEngine.current.getState());
+
+  const structureEngine = useRef(new StructureDrillEngine());
+  const [structureState, setStructureState] = useState<StructureState>(structureEngine.current.getState());
+
+  const [userAnswer, setUserAnswer] = useState('');
+  // For Structure Drill (Building sentence)
+  const [selectedSegments, setSelectedSegments] = useState<string[]>([]);
 
   useEffect(() => {
-    // Check for existing session (in production, check Supabase)
-    const savedUser = localStorage.getItem('igboverse_user');
+    // Auth logic abstraction
+    const savedUser = getUser();
     if (savedUser) {
-      setUser(JSON.parse(savedUser));
-      loadUserStats();
+      setUser(savedUser);
     }
+
+    // Load dialect preference
+    setSelectedDialectGroup(getSelectedDialect());
+
+    // Load Progress (XP & Streak) via Store
+    const progress = progressStore.getProgress();
+    setXp(progress.xp);
+    setLevel(getUserLevel(progress.xp).level);
+    setStreak(progress.streak);
+
+    // Check unlock status (Simple local storage check for prototype)
+    const unlocked = localStorage.getItem('igboverse_conjugation_unlocked') === 'true';
+    setIsConjugationUnlocked(unlocked);
+
+
+    const fetchApiData = async () => {
+      try {
+        const verbsData = await getVerbs();
+        drillEngine.current.updateVerbs(verbsData);
+        setDrillState(drillEngine.current.getState());
+
+        const structureData = await getStructureQuestions();
+        structureEngine.current.updateQuestions(structureData);
+        setStructureState(structureEngine.current.getState());
+      } catch (error) {
+        console.error("Failed to fetch API data:", error);
+      }
+    };
+
+    fetchApiData();
+    // Init structure engine
+    structureEngine.current.init();
+    setStructureState(structureEngine.current.getState());
   }, []);
 
-  const loadUserStats = () => {
-    const stats = localStorage.getItem('igboverse_stats');
-    if (stats) {
-      setUserStats(JSON.parse(stats));
+  // --- Dialect Selection Handler ---
+  const handleDialectChange = (group: DialectGroup) => {
+    setSelectedDialectGroup(group);
+    setSelectedDialect(group);
+  };
+
+  // --- Audio Playback ---
+  const playAudio = (url: string | null | undefined) => {
+    if (!url) return;
+    try {
+      const audio = new Audio(url);
+      audio.play().catch(e => console.warn('Audio playback failed:', e));
+    } catch (e) {
+      console.warn('Audio error:', e);
     }
   };
 
-  const saveUserStats = (newStats: typeof userStats) => {
-    setUserStats(newStats);
-    localStorage.setItem('igboverse_stats', JSON.stringify(newStats));
+  // --- Dialect-Aware Word Resolution ---
+  // Returns { word, audio, label } based on the user's dialect selection
+  const getDialectWord = (verb: Verb): { word: string; audio: string | null; label: string } => {
+    if (selectedDialectGroup === 'standard') {
+      return {
+        word: verb.infinitive,
+        audio: verb.audioUrl,
+        label: 'Standard Igbo'
+      };
+    }
+
+    const variant = resolveDialectVariant(verb.dialectVariants, selectedDialectGroup);
+    if (variant) {
+      return {
+        word: variant.word,
+        audio: variant.pronunciation || verb.audioUrl, // Fallback to standard audio
+        label: `${getDialectGroupLabel(selectedDialectGroup)} — ${variant.communities.join(', ')}`
+      };
+    }
+
+    // No dialect variant exists → fallback to standard (silent fallback)
+    return {
+      word: verb.infinitive,
+      audio: verb.audioUrl,
+      label: 'Standard Igbo (no dialect variant)'
+    };
   };
 
   const handleAuth = (e?: React.MouseEvent) => {
     if (e) e.preventDefault();
     if (!email || !password) return;
-    // In production: call Supabase Auth
-    const mockUser = { email, id: Date.now() };
+    const mockUser: User = { email, id: Date.now() };
     setUser(mockUser);
-    localStorage.setItem('igboverse_user', JSON.stringify(mockUser));
+    saveUser(mockUser);
     setCurrentView('home');
   };
 
   const handleLogout = () => {
     setUser(null);
-    localStorage.removeItem('igboverse_user');
+    saveUser(null);
     setCurrentView('home');
   };
 
+  const handleGuestLogin = () => {
+    const guestUser: User = { email: 'guest@igboverse.com', id: 0 };
+    setUser(guestUser);
+    setCurrentView('home');
+  };
+
+  // --- CONJUGATION DRILL ---
+  // Conjugation remains Standard Igbo only (verified API limitation)
+
   const startDrill = () => {
+    if (!isConjugationUnlocked) return;
     setCurrentView('drill');
-    loadNewQuestion();
-    setScore(0);
-    setQuestionsAnswered(0);
-  };
-
-  const loadNewQuestion = () => {
-    const randomVerb = MOCK_VERBS[Math.floor(Math.random() * MOCK_VERBS.length)];
-    const randomTense = TENSES[Math.floor(Math.random() * TENSES.length)].key;
-    const randomPronoun = PRONOUNS[Math.floor(Math.random() * PRONOUNS.length)].key;
-    
-    setCurrentVerb(randomVerb);
-    setSelectedTense(randomTense);
-    setSelectedPronoun(randomPronoun);
+    if (!drillState.currentPrompt) {
+      drillEngine.current.nextPrompt();
+      setDrillState(drillEngine.current.getState());
+    }
     setUserAnswer('');
-    setFeedback(null);
   };
 
-  const checkAnswer = () => {
-    if (!currentVerb || !userAnswer.trim()) return;
+  const checkDrillAnswer = () => {
+    if (!drillState.currentPrompt || !userAnswer.trim()) return;
 
-    const correctAnswer = currentVerb.conjugations[selectedTense][selectedPronoun];
-    const isCorrect = userAnswer.trim().toLowerCase() === correctAnswer.toLowerCase();
+    const feedback = drillEngine.current.submitAnswer(userAnswer);
+    setDrillState(drillEngine.current.getState());
 
-    setFeedback({
-      correct: isCorrect,
-      correctAnswer: correctAnswer
-    });
-
-    if (isCorrect) {
-      setScore(score + 1);
-      const newXP = userStats.xp + 10;
-      saveUserStats({ ...userStats, xp: newXP });
+    if (feedback?.correct) {
+      addXP(XP_PER_CORRECT_ANSWER);
+      updateStreak();
+      const progress = progressStore.getProgress();
+      setXp(progress.xp);
+      setLevel(getUserLevel(progress.xp).level);
+      setStreak(progress.streak);
     }
 
-    setQuestionsAnswered(questionsAnswered + 1);
-
     setTimeout(() => {
-      loadNewQuestion();
+      drillEngine.current.nextPrompt();
+      setDrillState(drillEngine.current.getState());
+      setUserAnswer('');
     }, 2000);
   };
 
-  const playAudio = (text: string) => {
-    // Stub for TTS - in production, integrate Google Cloud TTS
-    console.log('Playing audio for:', text);
-    alert(`Audio playback for: "${text}"\n(TTS integration needed)`);
+  // --- STRUCTURE DRILL ---
+  // Structure exercises remain Standard Igbo only (verified API limitation)
+
+  const startStructureDrill = () => {
+    setCurrentView('structure');
+    setSelectedSegments([]);
+    setStructureState(structureEngine.current.getState());
   };
 
-  const startFlashcards = () => {
-    setCurrentView('flashcards');
-    setCurrentCard(0);
-    setShowAnswer(false);
-    setCardStats({ correct: 0, total: 0 });
-  };
-
-  const nextCard = (wasCorrect?: boolean) => {
-    if (wasCorrect !== undefined) {
-      setCardStats({
-        correct: cardStats.correct + (wasCorrect ? 1 : 0),
-        total: cardStats.total + 1
-      });
+  const handleSegmentClick = (seg: string) => {
+    if (selectedSegments.includes(seg)) {
+      setSelectedSegments(selectedSegments.filter(s => s !== seg));
+    } else {
+      setSelectedSegments([...selectedSegments, seg]);
     }
-    
-    setShowAnswer(false);
-    setCurrentCard((currentCard + 1) % MOCK_FLASHCARDS.length);
   };
 
-  // VIEWS
+  const checkStructureAnswer = (answerOverride?: string) => {
+    const currentQ = structureState.currentQuestion;
+    if (!currentQ) return;
+
+    let answer: string | string[] = userAnswer;
+    if (currentQ.type === 'sentence-builder') {
+      answer = selectedSegments;
+    } else if (answerOverride) {
+      answer = answerOverride;
+    }
+
+    const isCorrect = structureEngine.current.submitAnswer(answer);
+    setStructureState(structureEngine.current.getState());
+
+    if (isCorrect) {
+      addXP(15);
+      updateStreak();
+      const progress = progressStore.getProgress();
+      setXp(progress.xp);
+    }
+
+    // Unlock check
+    if (structureEngine.current.getState().isComplete || structureEngine.current.getState().score >= 3) {
+      if (!isConjugationUnlocked && isCorrect) {
+        if (structureEngine.current.getState().score >= 3) {
+          setIsConjugationUnlocked(true);
+          localStorage.setItem('igboverse_conjugation_unlocked', 'true');
+        }
+      }
+    }
+
+    setTimeout(() => {
+      structureEngine.current.nextQuestion();
+      setStructureState(structureEngine.current.getState());
+      setUserAnswer('');
+      setSelectedSegments([]);
+    }, 2000);
+  };
+
+
+  // ===================== VIEWS =====================
+
   const renderAuth = () => (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-teal-100 flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
@@ -246,16 +281,32 @@ export default function IgboverseApp() {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-3 py-2 border rounded-md"
                 onKeyPress={(e) => e.key === 'Enter' && email && password && handleAuth()}
+                className="w-full px-3 py-2 border rounded-md"
               />
             </div>
-            <Button 
-              onClick={handleAuth} 
+            <Button
+              onClick={handleAuth}
               className="w-full bg-emerald-600 hover:bg-emerald-700"
               disabled={!email || !password}
             >
               {isLogin ? 'Login' : 'Sign Up'}
+            </Button>
+            <div className="relative my-4">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-white px-2 text-gray-500">Or continue with</span>
+              </div>
+            </div>
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={handleGuestLogin}
+            >
+              <UserIcon className="mr-2 h-4 w-4" />
+              Sign in as Guest
             </Button>
             <p className="text-center text-sm">
               {isLogin ? "Don't have an account? " : 'Already have an account? '}
@@ -278,9 +329,17 @@ export default function IgboverseApp() {
       <nav className="bg-white shadow-sm p-4 flex justify-between items-center">
         <h1 className="text-2xl font-bold text-emerald-700">Igboverse</h1>
         <div className="flex items-center gap-4">
+          <div className="flex items-center gap-1 text-xs px-2 py-1 bg-purple-50 rounded-full text-purple-700 font-medium">
+            <Globe className="w-3 h-3" />
+            {getDialectGroupLabel(selectedDialectGroup)}
+          </div>
+          <div className="flex items-center gap-2 text-sm">
+            <span className="text-orange-500">🔥</span>
+            <span className="font-semibold">{streak} Days</span>
+          </div>
           <div className="flex items-center gap-2 text-sm">
             <Trophy className="w-4 h-4 text-yellow-500" />
-            <span className="font-semibold">{userStats.xp} XP</span>
+            <span className="font-semibold">{xp} XP (Level {level})</span>
           </div>
           <Button variant="outline" size="sm" onClick={handleLogout}>Logout</Button>
         </div>
@@ -289,32 +348,44 @@ export default function IgboverseApp() {
       <div className="max-w-4xl mx-auto p-6 space-y-6">
         <div className="text-center py-8">
           <h2 className="text-4xl font-bold text-gray-800 mb-2">Nnọọ! Welcome back</h2>
-          <p className="text-gray-600">Continue your Igbo learning journey</p>
+          <p className="text-gray-600">Master Igbo Verb Conjugations</p>
         </div>
 
+        {/* Dialect Map Selector */}
+        <DialectMap
+          selectedDialect={selectedDialectGroup}
+          onSelect={handleDialectChange}
+        />
+
         <div className="grid md:grid-cols-3 gap-4">
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={startDrill}>
+          {/* Structure Drill Card */}
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer border-l-4 border-l-blue-500" onClick={startStructureDrill}>
             <CardHeader>
-              <Zap className="w-8 h-8 text-emerald-600 mb-2" />
-              <CardTitle>Conjugation Drill</CardTitle>
-              <CardDescription>Practice verb conjugations</CardDescription>
+              <Book className="w-8 h-8 text-blue-600 mb-2" />
+              <CardTitle>Structure Basics</CardTitle>
+              <CardDescription>Master sentence order first</CardDescription>
             </CardHeader>
             <CardContent>
-              <Button className="w-full bg-emerald-600 hover:bg-emerald-700">
-                Start Drill <ChevronRight className="w-4 h-4 ml-2" />
+              <Button className="w-full bg-blue-600 hover:bg-blue-700">
+                Start Basics <ChevronRight className="w-4 h-4 ml-2" />
               </Button>
             </CardContent>
           </Card>
 
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={startFlashcards}>
+          {/* Conjugation Drill Card (Gated) */}
+          <Card className={`transition-shadow ${isConjugationUnlocked ? 'hover:shadow-lg cursor-pointer border-l-4 border-l-emerald-500' : 'opacity-75 bg-gray-50'}`} onClick={startDrill}>
             <CardHeader>
-              <BookOpen className="w-8 h-8 text-blue-600 mb-2" />
-              <CardTitle>Flashcards</CardTitle>
-              <CardDescription>Review vocabulary</CardDescription>
+              <Zap className={`w-8 h-8 mb-2 ${isConjugationUnlocked ? 'text-emerald-600' : 'text-gray-400'}`} />
+              <div className="flex justify-between items-center">
+                <CardTitle>Conjugation</CardTitle>
+                {!isConjugationUnlocked && <Lock className="w-4 h-4 text-gray-400" />}
+              </div>
+              <CardDescription>{isConjugationUnlocked ? "Rapid-fire drills" : "Unlock by completing Basics"}</CardDescription>
             </CardHeader>
             <CardContent>
-              <Button className="w-full bg-blue-600 hover:bg-blue-700">
-                Study Cards <ChevronRight className="w-4 h-4 ml-2" />
+              <Button className={`w-full ${isConjugationUnlocked ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-gray-300 cursor-not-allowed'}`} disabled={!isConjugationUnlocked}>
+                {isConjugationUnlocked ? "Start Training" : "Locked"}
+                {isConjugationUnlocked && <ChevronRight className="w-4 h-4 ml-2" />}
               </Button>
             </CardContent>
           </Card>
@@ -323,17 +394,21 @@ export default function IgboverseApp() {
             <CardHeader>
               <Trophy className="w-8 h-8 text-yellow-600 mb-2" />
               <CardTitle>Progress</CardTitle>
-              <CardDescription>Your learning stats</CardDescription>
+              <CardDescription>Your stats</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
+                  <span>Level:</span>
+                  <span className="font-bold">{level}</span>
+                </div>
+                <div className="flex justify-between">
                   <span>Total XP:</span>
-                  <span className="font-bold">{userStats.xp}</span>
+                  <span className="font-bold">{xp}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Streak:</span>
-                  <span className="font-bold">{userStats.streak} days</span>
+                  <span className="font-bold">{streak} days</span>
                 </div>
               </div>
             </CardContent>
@@ -343,168 +418,140 @@ export default function IgboverseApp() {
     </div>
   );
 
-  const renderDrill = () => (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-teal-100">
-      <nav className="bg-white shadow-sm p-4 flex justify-between items-center">
-        <Button variant="ghost" onClick={() => setCurrentView('home')}>
-          ← Back
-        </Button>
-        <div className="flex items-center gap-4">
-          <span className="text-sm font-medium">Score: {score}/{questionsAnswered}</span>
-          <span className="text-sm text-gray-600">XP: {userStats.xp}</span>
-        </div>
-      </nav>
+  const renderDrill = () => {
+    // Get dialect-aware word for display (vocabulary only — conjugation stays Standard)
+    const currentVerb = drillState.currentPrompt?.verb;
+    const dialectInfo = currentVerb ? getDialectWord(currentVerb) : null;
 
-      <div className="max-w-2xl mx-auto p-6">
-        <Card className="mt-8">
-          <CardHeader>
-            <CardTitle className="text-2xl text-center">Conjugation Practice</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {currentVerb && (
-              <>
-                <div className="text-center p-6 bg-emerald-50 rounded-lg">
-                  <div className="flex items-center justify-center gap-2 mb-2">
-                    <h3 className="text-3xl font-bold text-emerald-700">{currentVerb.infinitive}</h3>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => playAudio(currentVerb.infinitive)}
-                    >
-                      <Volume2 className="w-4 h-4" />
-                    </Button>
-                  </div>
-                  <p className="text-gray-600">({currentVerb.english})</p>
-                </div>
-
-                <div className="space-y-2">
-                  <p className="text-sm font-medium text-gray-600">Conjugate in:</p>
-                  <div className="flex gap-2 flex-wrap">
-                    <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">
-                      {TENSES.find(t => t.key === selectedTense)?.label}
-                    </span>
-                    <span className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-medium">
-                      {PRONOUNS.find(p => p.key === selectedPronoun)?.label}
-                    </span>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-2">Your answer:</label>
-                  <input
-                    type="text"
-                    value={userAnswer}
-                    onChange={(e) => setUserAnswer(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && checkAnswer()}
-                    className="w-full px-4 py-3 border-2 rounded-lg text-lg"
-                    placeholder="Type the conjugated form..."
-                    disabled={feedback !== null}
-                  />
-                </div>
-
-                {feedback && (
-                  <Alert className={feedback.correct ? 'border-green-500 bg-green-50' : 'border-red-500 bg-red-50'}>
-                    <div className="flex items-center gap-2">
-                      {feedback.correct ? (
-                        <Check className="w-5 h-5 text-green-600" />
-                      ) : (
-                        <X className="w-5 h-5 text-red-600" />
-                      )}
-                      <AlertDescription>
-                        {feedback.correct ? (
-                          <span className="text-green-700 font-medium">Correct! +10 XP</span>
-                        ) : (
-                          <span className="text-red-700">
-                            Incorrect. The correct answer is: <strong>{feedback.correctAnswer}</strong>
-                          </span>
-                        )}
-                      </AlertDescription>
-                    </div>
-                  </Alert>
-                )}
-
-                <Button
-                  className="w-full bg-emerald-600 hover:bg-emerald-700"
-                  onClick={checkAnswer}
-                  disabled={!userAnswer.trim() || feedback !== null}
-                >
-                  Check Answer
-                </Button>
-              </>
-            )}
-          </CardContent>
-        </Card>
-      </div>
-    </div>
-  );
-
-  const renderFlashcards = () => {
-    const card = MOCK_FLASHCARDS[currentCard];
-    
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+      <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-teal-100">
         <nav className="bg-white shadow-sm p-4 flex justify-between items-center">
           <Button variant="ghost" onClick={() => setCurrentView('home')}>
             ← Back
           </Button>
-          <div className="text-sm">
-            Card {currentCard + 1} / {MOCK_FLASHCARDS.length}
-          </div>
-          <div className="text-sm text-gray-600">
-            {cardStats.correct}/{cardStats.total} correct
+          <div className="flex items-center gap-4">
+            <span className="text-sm font-medium">Score: {drillState.score}/{drillState.questionsAnswered}</span>
+            <div className="flex items-center gap-2 text-sm">
+              <span className="text-orange-500">🔥</span>
+              <span className="font-semibold">{drillState.streak}</span>
+            </div>
+            <span className="text-sm text-gray-600">XP: {xp}</span>
           </div>
         </nav>
 
-        <div className="max-w-2xl mx-auto p-6 flex items-center justify-center" style={{ minHeight: 'calc(100vh - 80px)' }}>
-          <Card className="w-full">
-            <CardContent className="p-8">
-              <div
-                className="text-center cursor-pointer p-12 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-lg min-h-[300px] flex flex-col items-center justify-center"
-                onClick={() => setShowAnswer(!showAnswer)}
-              >
-                {!showAnswer ? (
-                  <>
-                    <div className="flex items-center justify-center gap-2 mb-4">
-                      <h3 className="text-4xl font-bold text-indigo-700">{card.igbo}</h3>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          playAudio(card.igbo);
-                        }}
-                      >
-                        <Volume2 className="w-5 h-5" />
-                      </Button>
+        <div className="max-w-2xl mx-auto p-6">
+          <Card className="mt-8">
+            <CardHeader>
+              <CardTitle className="text-2xl text-center">Conjugation Practice</CardTitle>
+              <CardDescription className="text-center text-xs text-gray-400">
+                Conjugation always uses Standard Igbo
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {drillState.currentPrompt && (
+                <>
+                  <div className="text-center p-6 bg-emerald-50 rounded-lg">
+                    <div className="flex items-center justify-center gap-2 mb-2">
+                      <h3 className="text-3xl font-bold text-emerald-700">{drillState.currentPrompt.promptText}</h3>
                     </div>
-                    <p className="text-gray-500 text-sm uppercase tracking-wide">{card.type}</p>
-                    <p className="text-gray-400 text-sm mt-4">Click to reveal</p>
-                  </>
-                ) : (
-                  <>
-                    <h3 className="text-4xl font-bold text-gray-800 mb-2">{card.english}</h3>
-                    <p className="text-gray-500 text-lg">{card.igbo}</p>
-                  </>
-                )}
-              </div>
+                    <p className="text-xl font-medium text-gray-700 mt-4">{drillState.currentPrompt.contextText}</p>
 
-              {showAnswer && (
-                <div className="mt-6 flex gap-4">
+                    {/* Dialect-aware vocabulary display */}
+                    {dialectInfo && selectedDialectGroup !== 'standard' && currentVerb && (
+                      <div className="mt-3 pt-3 border-t border-emerald-200">
+                        <div className="flex items-center justify-center gap-2">
+                          <span className="text-xs text-purple-600 bg-purple-50 px-2 py-0.5 rounded-full">
+                            {dialectInfo.label}
+                          </span>
+                          <span className="text-sm font-semibold text-purple-700">{dialectInfo.word}</span>
+                          {dialectInfo.audio && (
+                            <button
+                              onClick={(e) => { e.stopPropagation(); playAudio(dialectInfo.audio); }}
+                              className="p-1 rounded-full hover:bg-purple-100 transition"
+                              title="Play dialect pronunciation"
+                            >
+                              <Volume2 className="w-4 h-4 text-purple-500" />
+                            </button>
+                          )}
+                        </div>
+                        {/* Also show standard form for comparison */}
+                        <div className="flex items-center justify-center gap-2 mt-1">
+                          <span className="text-xs text-gray-400">Standard:</span>
+                          <span className="text-sm text-gray-500">{currentVerb.infinitive}</span>
+                          {currentVerb.audioUrl && (
+                            <button
+                              onClick={(e) => { e.stopPropagation(); playAudio(currentVerb.audioUrl); }}
+                              className="p-1 rounded-full hover:bg-gray-100 transition"
+                              title="Play standard pronunciation"
+                            >
+                              <Volume2 className="w-3 h-3 text-gray-400" />
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Standard mode audio button */}
+                    {selectedDialectGroup === 'standard' && currentVerb?.audioUrl && (
+                      <div className="mt-3 pt-3 border-t border-emerald-200">
+                        <button
+                          onClick={() => playAudio(currentVerb.audioUrl)}
+                          className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full hover:bg-emerald-100 transition text-sm text-emerald-600"
+                          title="Play pronunciation"
+                        >
+                          <Volume2 className="w-4 h-4" />
+                          Listen
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Your answer:</label>
+                    <input
+                      type="text"
+                      value={userAnswer}
+                      onChange={(e) => setUserAnswer(e.target.value)}
+                      onKeyPress={(e) => e.key === 'Enter' && checkDrillAnswer()}
+                      className="w-full px-4 py-3 border-2 rounded-lg text-lg"
+                      placeholder="Type the conjugated form (e.g. Ana m eri)"
+                      disabled={drillState.feedback !== null}
+                      autoFocus
+                    />
+                  </div>
+
+                  {drillState.feedback && (
+                    <Alert className={drillState.feedback.correct ? 'border-green-500 bg-green-50' : 'border-red-500 bg-red-50'}>
+                      <div className="flex items-center gap-2">
+                        {drillState.feedback.correct ? (
+                          <Check className="w-5 h-5 text-green-600" />
+                        ) : (
+                          <X className="w-5 h-5 text-red-600" />
+                        )}
+                        <AlertDescription>
+                          {drillState.feedback.correct ? (
+                            <span className="text-green-700 font-medium">Correct! +{XP_PER_CORRECT_ANSWER} XP</span>
+                          ) : (
+                            <span className="text-red-700">
+                              Incorrect. The correct answer is: <strong>{drillState.feedback.correctAnswer}</strong>
+                            </span>
+                          )}
+                        </AlertDescription>
+                      </div>
+                    </Alert>
+                  )}
+
                   <Button
-                    className="flex-1 bg-red-500 hover:bg-red-600"
-                    onClick={() => nextCard(false)}
+                    className="w-full bg-emerald-600 hover:bg-emerald-700"
+                    onClick={checkDrillAnswer}
+                    disabled={!userAnswer.trim() || drillState.feedback !== null}
                   >
-                    <X className="w-4 h-4 mr-2" />
-                    Need Practice
+                    Check Answer
                   </Button>
-                  <Button
-                    className="flex-1 bg-green-500 hover:bg-green-600"
-                    onClick={() => nextCard(true)}
-                  >
-                    <Check className="w-4 h-4 mr-2" />
-                    Got It!
-                  </Button>
-                </div>
+                </>
+              )}
+              {!drillState.currentPrompt && (
+                <div className="text-center p-12">Loading drills...</div>
               )}
             </CardContent>
           </Card>
@@ -513,14 +560,104 @@ export default function IgboverseApp() {
     );
   };
 
+  const renderStructureDrill = () => {
+    const q = structureState.currentQuestion;
+    const isCorrect = structureState.feedback?.correct;
+
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+        <nav className="bg-white shadow-sm p-4 flex justify-between items-center">
+          <Button variant="ghost" onClick={() => setCurrentView('home')}>← Back</Button>
+          <div className="text-sm">Score: {structureState.score}</div>
+        </nav>
+        <div className="max-w-2xl mx-auto p-6 mt-8">
+          {structureState.isComplete ? (
+            <Card className="text-center p-8">
+              <CardTitle className="text-2xl mb-4">Training Complete!</CardTitle>
+              <p className="mb-6">You have mastered the basics.</p>
+              <Button onClick={() => setCurrentView('home')}>Back to Home</Button>
+            </Card>
+          ) : (
+            <Card>
+              <CardHeader>
+                <CardTitle>Structure Training</CardTitle>
+                <CardDescription>
+                  {q?.type === 'sentence-builder' ? 'Arrange the words in correct order' :
+                    q?.type === 'translation' ? 'Choose the correct translation' : 'Match the pronoun'}
+                  <span className="block text-xs text-gray-400 mt-1">Standard Igbo</span>
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {q && (
+                  <div className="space-y-6">
+                    <div className="p-4 bg-gray-100 rounded-lg text-lg font-medium text-center">
+                      {q.prompt}
+                    </div>
+
+                    {q.type === 'sentence-builder' && q.segments && (
+                      <div className="space-y-4">
+                        <div className="flex flex-wrap gap-2 min-h-[60px] p-4 border-2 border-dashed rounded-lg bg-white items-center">
+                          {selectedSegments.map((seg, i) => (
+                            <Button key={i} variant="secondary" onClick={() => handleSegmentClick(seg)}>
+                              {seg}
+                            </Button>
+                          ))}
+                          {selectedSegments.length === 0 && <span className="text-gray-400 text-sm">Tap words below to build sentence...</span>}
+                        </div>
+                        <div className="flex flex-wrap gap-2 justify-center">
+                          {q.segments.filter(s => !selectedSegments.includes(s)).map((seg, i) => (
+                            <Button key={i} variant="outline" onClick={() => handleSegmentClick(seg)}>
+                              {seg}
+                            </Button>
+                          ))}
+                        </div>
+                        <Button className="w-full mt-4" onClick={() => checkStructureAnswer()} disabled={structureState.feedback !== null}>
+                          Check Order
+                        </Button>
+                      </div>
+                    )}
+
+                    {(q.type === 'translation' || q.type === 'pronoun-match') && q.options && (
+                      <div className="grid grid-cols-1 gap-3">
+                        {q.options.map((opt, i) => (
+                          <Button
+                            key={i}
+                            variant="outline"
+                            className="justify-start h-auto py-3 px-4 text-left"
+                            onClick={() => checkStructureAnswer(opt)}
+                            disabled={structureState.feedback !== null}
+                          >
+                            {opt}
+                          </Button>
+                        ))}
+                      </div>
+                    )}
+
+                    {structureState.feedback && (
+                      <Alert className={isCorrect ? 'bg-green-50 border-green-500' : 'bg-red-50 border-red-500'}>
+                        <AlertDescription className={isCorrect ? 'text-green-700' : 'text-red-700'}>
+                          {structureState.feedback.message}
+                        </AlertDescription>
+                      </Alert>
+                    )}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      </div>
+    );
+  };
+
   // Main Router
   if (!user) return renderAuth();
-  
+
   switch (currentView) {
     case 'drill':
       return renderDrill();
-    case 'flashcards':
-      return renderFlashcards();
+    case 'structure':
+      return renderStructureDrill();
     default:
       return renderHome();
   }
