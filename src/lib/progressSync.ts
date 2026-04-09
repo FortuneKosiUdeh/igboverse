@@ -99,13 +99,15 @@ export async function loadSrsFromDB(userId: string): Promise<SRSMetadata[]> {
         });
         if (error || !data) return [];
         return data.map((row: Record<string, unknown>) => ({
-            wordId:      row.word_id      as string,
-            lastSeen:    row.last_seen    as number,
-            nextReview:  row.next_review  as number,
-            easeFactor:  row.ease_factor  as number,
-            interval:    row.interval_days as number,
-            repetitions: row.repetitions  as number,
-            lapses:      row.lapses       as number,
+            wordId:         row.word_id        as string,
+            lastSeen:       row.last_seen      as number,
+            nextReview:     row.next_review    as number,
+            easeFactor:     row.ease_factor    as number,
+            interval:       row.interval_days  as number,
+            repetitions:    row.repetitions    as number,
+            lapses:         row.lapses         as number,
+            spokenAttempts: (row.spoken_attempts as number) ?? 0,
+            spokenCorrect:  (row.spoken_correct  as number) ?? 0,
         }));
     } catch (err) {
         console.warn('[progressSync] loadSrsFromDB error:', err);
@@ -117,14 +119,16 @@ export async function saveSrsToDB(userId: string, queue: SRSMetadata[]): Promise
     if (typeof window === 'undefined' || queue.length === 0) return;
     try {
         const rows = queue.map(e => ({
-            user_id:       userId,
-            word_id:       e.wordId,
-            last_seen:     e.lastSeen,
-            next_review:   e.nextReview,
-            ease_factor:   e.easeFactor,
-            interval_days: e.interval,
-            repetitions:   e.repetitions,
-            lapses:        e.lapses,
+            user_id:          userId,
+            word_id:          e.wordId,
+            last_seen:        e.lastSeen,
+            next_review:      e.nextReview,
+            ease_factor:      e.easeFactor,
+            interval_days:    e.interval,
+            repetitions:      e.repetitions,
+            lapses:           e.lapses,
+            spoken_attempts:  e.spokenAttempts ?? 0,
+            spoken_correct:   e.spokenCorrect  ?? 0,
         }));
 
         // Upsert in chunks of 100 to stay within payload limits

@@ -37,6 +37,7 @@ import {
     mergeSrsQueues,
     saveAssemblyMetricsToDB,
 } from '@/lib/progressSync';
+import { getImmersionRecommendation } from '@/data/immersionSources';
 
 // ─── Profile type ─────────────────────────────────────────────
 
@@ -138,6 +139,20 @@ export default function IgboverseV2() {
     const [claimStatus, setClaimStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
     const [showClaimPanel, setShowClaimPanel] = useState(false);
 
+    // ─── Speech Recognition (Mission 10) ────────────────────────
+    // Feature-detect once on mount; stays null if API unavailable.
+    const speechSupported = typeof window !== 'undefined' &&
+        !!(window.SpeechRecognition || (window as Record<string, unknown>).webkitSpeechRecognition);
+    const [micPermGranted, setMicPermGranted] = useState<boolean>(() => {
+        if (typeof window === 'undefined') return false;
+        return localStorage.getItem('igboverse_mic_granted') === 'true';
+    });
+    const [showMicModal, setShowMicModal] = useState(false);
+    const [speechRecording, setSpeechRecording] = useState(false);
+    const [speechTranscript, setSpeechTranscript] = useState<string | null>(null);
+    const [speechMissing, setSpeechMissing] = useState<string[]>([]); // words not found
+    const recognizerRef = useRef<SpeechRecognition | null>(null);
+
     // ─── Init ───────────────────────────────────────────────────
 
     useEffect(() => {
@@ -235,6 +250,8 @@ export default function IgboverseV2() {
                 startedAt: Date.now(),
                 completedAt: null,
                 stepResults: [],
+                spokenAttempts: 0,
+                spokenCorrect: 0,
             });
 
             // Add target words to SRS queue
@@ -300,6 +317,8 @@ export default function IgboverseV2() {
                 startedAt: Date.now(),
                 completedAt: null,
                 stepResults: [],
+                spokenAttempts: 0,
+                spokenCorrect: 0,
             });
             setScreen('drill');
         } catch (err) {
@@ -315,7 +334,7 @@ export default function IgboverseV2() {
 
     // ─── Handle answer ─────────────────────────────────────────
 
-    const handleAnswer = useCallback((answer: string) => {
+    const handleAnswer = useCallback((answer: string | 'SUBMIT_SPOKEN_CORRECT') => {
         if (!currentStep || !session || showResult) return;
 
         const timeMs = Date.now() - stepStartTime.current;
@@ -345,8 +364,14 @@ export default function IgboverseV2() {
                 correct = true;
                 break;
             case 'assembly':
-                correct = answer === 'SUBMIT' && assemblyOrder.join(' ') === currentStep.correctOrder.join(' ');
-                break;
+                if (answer === 'SUBMIT_SPOKEN_CORRECT') {
+                    handleCorrect(currentStep);
+                    return;
+                }
+                const finalOrder = assemblyOrder;
+                const isCorrectOrder = JSON.stringify(finalOrder) === JSON.stringify(currentStep.correctOrder);
+                isCorrectOrder ? handleCorrect(currentStep) : handleIncorrect(currentStep);
+                return;
             default:
                 correct = true; // exposure is always "correct"
         }
@@ -606,6 +631,114 @@ export default function IgboverseV2() {
             a.play().catch(() => {});
         } catch {}
     };
+
+    // ─── Speech helpers (Mission 10) ──────────────────────────
+
+    /** Strip tone diacritics and punctuation for loose transcript matching. */
+    function normalizeForSpeech(s: string): string {
+        return s
+            .toLowerCase()
+            // common Igbo diacritics → base Latin
+            .replace(/[ọ]/g, 'o').replace(/[ụ]/g, 'u')
+            .replace(/[ị]/g, 'i').replace(/[ạ]/g, 'a')
+            .replace(/[ẹ]/g, 'e').replace(/[ṅ]/g, 'n')
+            .replace(/[àáâãäå]/g, 'a').replace(/[èéêë]/g, 'e')
+            .replace(/[ìíîï]/g, 'i').replace(/[òóôõö]/g, 'o')
+            .replace(/[ùúûü]/g, 'u')
+            // strip punctuation
+            .replace(/[^a-z0-9\s]/g, '')
+            .trim();
+    }
+
+    /**
+     * Loose match: what fraction of target words appear in the transcript?
+     * Returns { score: 0..1, missing: string[] }
+     */
+    function speechMatchScore(
+        transcript: string,
+        correctOrder: string[],
+    ): { score: number; missing: string[] } {
+        const normT = normalizeForSpeech(transcript);
+        const targetWords = correctOrder
+            .flatMap(chunk => chunk.split(/\s+/))
+            .map(normalizeForSpeech)
+            .filter(Boolean);
+        const missing = targetWords.filter(w => !normT.includes(w));
+        const score = targetWords.length > 0
+            ? (targetWords.length - missing.length) / targetWords.length
+            : 0;
+        // return original-case chunks for missing display
+        const missingOriginal = correctOrder
+            .flatMap(chunk => chunk.split(/\s+/))
+            .filter((_, i) => {
+                const norm = normalizeForSpeech(correctOrder.flatMap(c => c.split(/\s+/))[i]);
+                return !normT.includes(norm);
+            });
+        return { score, missing: missingOriginal };
+    }
+
+    /** Start the Web Speech API recognizer for an assembly step. */
+    function startSpeechRecognition(step: LessonStep & { type: 'assembly' }) {
+        // Reset per-attempt state
+        setSpeechTranscript(null);
+        setSpeechMissing([]);
+        setSpeechRecording(true);
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const SR = (window.SpeechRecognition || (window as any).webkitSpeechRecognition) as typeof SpeechRecognition;
+        const rec = new SR();
+        rec.lang = 'ig';
+        rec.interimResults = false;
+        rec.maxAlternatives = 3;
+        recognizerRef.current = rec;
+
+        rec.onresult = (event: SpeechRecognitionEvent) => {
+            // Pick the top alternative
+            const transcript = event.results[0][0].transcript;
+            setSpeechTranscript(transcript);
+            setSpeechRecording(false);
+
+            const { score, missing } = speechMatchScore(transcript, step.correctOrder);
+            setSpeechMissing(missing);
+
+            const correct = score >= 0.8;
+
+            // Update session spoken counters
+            setSession(prev => prev ? {
+                ...prev,
+                spokenAttempts: prev.spokenAttempts + 1,
+                spokenCorrect:  prev.spokenCorrect + (correct ? 1 : 0),
+            } : prev);
+
+            // Update SRS spoken counters on the word entry
+            setSrsQueue(prev => prev.map(e =>
+                e.wordId === step.wordId
+                    ? {
+                        ...e,
+                        spokenAttempts: (e.spokenAttempts ?? 0) + 1,
+                        spokenCorrect:  (e.spokenCorrect ?? 0) + (correct ? 1 : 0),
+                    }
+                    : e
+            ));
+
+            if (correct) {
+                // Positive reinforcement: play native audio immediately
+                playAudio(step.audioUrl);
+                // Score as correct via handleAnswer pathway
+                handleAnswer('SUBMIT_SPOKEN_CORRECT');
+            }
+            // If incorrect: leave UI visible so user sees missing words, then waits for tap
+        };
+
+        rec.onerror = () => setSpeechRecording(false);
+        rec.onend   = () => setSpeechRecording(false);
+        rec.start();
+    }
+
+    function stopSpeechRecognition() {
+        recognizerRef.current?.stop();
+        setSpeechRecording(false);
+    }
 
     // ─── Render: Onboarding ────────────────────────────────────
 
@@ -1058,12 +1191,77 @@ export default function IgboverseV2() {
                         </div>
                     )}
 
+                    {/* Spoken accuracy chip — only when ≥ 3 spoken attempts in this session */}
+                    {session.spokenAttempts >= 3 && (
+                        <div style={styles.accuracyRow}>
+                            <div style={styles.accuracyChip}>
+                                <span style={{
+                                    ...styles.accuracyChipValue,
+                                    color: (session.spokenCorrect / session.spokenAttempts) >= 0.7
+                                        ? '#059669' : '#f59e0b',
+                                }}>
+                                    {session.spokenCorrect}/{session.spokenAttempts}
+                                </span>
+                                <span style={styles.accuracyChipLabel}>🎙 Spoken</span>
+                            </div>
+                        </div>
+                    )}
+
                     {/* Secondary stats — demoted to footnote */}
                     <div style={styles.summarySecondary}>
                         <span style={styles.summarySecondaryItem}>🔥 Consistency streak: {session.maxStreak}</span>
                         <span style={styles.summarySecondaryItem}>⏱ {duration}s</span>
                         <span style={styles.summarySecondaryItem}>+ {xpEarned} XP</span>
                     </div>
+
+                    {/* Listen next — immersion feed card */}
+                    {(() => {
+                        const rec = getImmersionRecommendation(
+                            lesson.themeId,
+                            profile.level,
+                        );
+                        const sourceBadgeColor: Record<string, string> = {
+                            'BBC Igbo':         '#dc2626',
+                            'Igbo Daily Drops': '#7c3aed',
+                            'Obodo':            '#0369a1',
+                            'NKATA':            '#b45309',
+                        };
+                        return (
+                            <div style={styles.immersionCard}>
+                                <div style={styles.immersionHeader}>
+                                    <span style={{
+                                        ...styles.immersionSourceBadge,
+                                        background: sourceBadgeColor[rec.source] ?? '#374151',
+                                    }}>
+                                        {rec.source}
+                                    </span>
+                                    <span style={styles.immersionTagline}>
+                                        Listen next
+                                    </span>
+                                </div>
+                                <p style={styles.immersionTitle}>{rec.title}</p>
+                                <p style={styles.immersionDesc}>{rec.description}</p>
+                                <div style={styles.immersionChunks}>
+                                    {rec.chunkExamples.map(chunk => (
+                                        <span key={chunk} style={styles.immersionChunk}>
+                                            {chunk}
+                                        </span>
+                                    ))}
+                                </div>
+                                <p style={styles.immersionLabel}>
+                                    This clip contains chunks you just practiced
+                                </p>
+                                <a
+                                    href={rec.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    style={styles.immersionBtn}
+                                >
+                                    Open →
+                                </a>
+                            </div>
+                        );
+                    })()}
 
                     <button onClick={() => setScreen('home')} style={styles.homeButton}>
                         Continue Learning
@@ -1353,7 +1551,7 @@ export default function IgboverseV2() {
         );
     }
 
-    // Assembly: sentence scramble — progress-bar timer, tap-to-hear only
+    // Assembly: sentence scramble — progress-bar timer + optional speech mode
     function renderAssembly(step: LessonStep & { type: 'assembly' }) {
         const remaining = step.chunks.filter(c => !assemblyOrder.includes(c));
         // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -1366,11 +1564,55 @@ export default function IgboverseV2() {
             ? '#f59e0b'
             : '#ef4444';
 
+        function handleMicTap() {
+            if (!micPermGranted) {
+                setShowMicModal(true);  // show one-time custom modal
+                return;
+            }
+            if (speechRecording) {
+                stopSpeechRecognition();
+            } else {
+                startSpeechRecognition(step);
+            }
+        }
+
         return (
-            // Outer wrapper gives the timer bar a place to live above the padded card
             <div style={{ maxWidth: 500, width: '100%' }}>
 
-                {/* Timer progress bar — only on assembly steps with a timer */}
+                {/* Mic permission modal — one-time, custom (not browser native) */}
+                {showMicModal && (
+                    <div style={styles.micModalOverlay}>
+                        <div style={styles.micModalCard}>
+                            <div style={styles.micModalIcon}>🎙</div>
+                            <p style={styles.micModalTitle}>Microphone access</p>
+                            <p style={styles.micModalBody}>
+                                Igboverse wants to use your microphone to check your spoken Igbo.
+                                Your audio stays on your device — nothing is sent to a server.
+                            </p>
+                            <div style={styles.micModalBtns}>
+                                <button
+                                    style={styles.micModalDeny}
+                                    onClick={() => setShowMicModal(false)}
+                                >
+                                    Not now
+                                </button>
+                                <button
+                                    style={styles.micModalAllow}
+                                    onClick={() => {
+                                        localStorage.setItem('igboverse_mic_granted', 'true');
+                                        setMicPermGranted(true);
+                                        setShowMicModal(false);
+                                        startSpeechRecognition(step);
+                                    }}
+                                >
+                                    Allow
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Timer progress bar */}
                 {step.timerSeconds && !showResult && (
                     <div style={styles.timerBarTrack}>
                         <div style={{
@@ -1389,27 +1631,67 @@ export default function IgboverseV2() {
                     <p style={styles.questionLabel}>Build the sentence</p>
                     <p style={styles.clozeTranslation}>{step.translation}</p>
 
-                    {/* Timeout flash — greys out the correct sentence for 1.5 s */}
+                    {/* Timeout flash */}
                     {assemblyTimedOut && timedOutSentence && (
                         <div style={styles.timeoutFlash}>
                             ⏱ {timedOutSentence}
                         </div>
                     )}
 
-                    {/* Tap-to-hear */}
+                    {/* Controls row: Listen + optional Mic */}
                     {!assemblyTimedOut && (
-                        <button
-                            id="assembly-audio-btn"
-                            onClick={play}
-                            disabled={!canPlay}
-                            style={{
-                                ...styles.audioBtn,
-                                ...(!canPlay ? styles.audioBtnDisabled : {}),
-                            }}
-                            aria-label="Hear sentence"
-                        >
-                            🔊 Listen
-                        </button>
+                        <div style={styles.assemblyControlRow}>
+                            <button
+                                id="assembly-audio-btn"
+                                onClick={play}
+                                disabled={!canPlay}
+                                style={{
+                                    ...styles.audioBtn,
+                                    ...(!canPlay ? styles.audioBtnDisabled : {}),
+                                }}
+                                aria-label="Hear sentence"
+                            >
+                                🔊 Listen
+                            </button>
+
+                            {/* Mic button — only rendered if Web Speech API is available */}
+                            {speechSupported && !showResult && (
+                                <button
+                                    id="assembly-mic-btn"
+                                    onClick={handleMicTap}
+                                    style={{
+                                        ...styles.micBtn,
+                                        ...(speechRecording ? styles.micBtnActive : {}),
+                                    }}
+                                    aria-label={speechRecording ? 'Stop recording' : 'Speak the sentence'}
+                                    title="Speak the sentence instead of tapping"
+                                >
+                                    {speechRecording ? '⏹ Stop' : '🎙 Speak'}
+                                </button>
+                            )}
+                        </div>
+                    )}
+
+                    {/* Speech transcript display */}
+                    {speechTranscript && !showResult && (
+                        <div style={styles.transcriptBox}>
+                            <span style={styles.transcriptLabel}>You said: </span>
+                            <span style={styles.transcriptText}>{speechTranscript}</span>
+                            {speechMissing.length > 0 && (
+                                <div style={styles.missingWords}>
+                                    Missing:{' '}
+                                    {speechMissing.map(w => (
+                                        <span key={w} style={styles.missingWord}>{w}</span>
+                                    ))}
+                                    <button
+                                        onClick={() => handleAnswer('SUBMIT')}
+                                        style={styles.tryBlocksBtn}
+                                    >
+                                        Use blocks instead →
+                                    </button>
+                                </div>
+                            )}
+                        </div>
                     )}
 
                     {/* Answer area */}
@@ -2021,4 +2303,126 @@ const styles: Record<string, React.CSSProperties> = {
     },
     nextReviewWord: { fontWeight: 600, color: '#1f2937' },
     nextReviewTime: { color: '#6b7280' },
+
+    // Immersion feed card
+    immersionCard: {
+        width: '100%', padding: '18px 20px', borderRadius: 16, marginBottom: 20,
+        background: 'linear-gradient(135deg, #fafff9 0%, #f0fdf4 100%)',
+        border: '1.5px solid #a7f3d0',
+        textAlign: 'left' as const,
+    },
+    immersionHeader: {
+        display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10,
+    },
+    immersionSourceBadge: {
+        fontSize: 10, fontWeight: 700, color: 'white',
+        padding: '3px 8px', borderRadius: 6, letterSpacing: '0.4px',
+        textTransform: 'uppercase' as const,
+    },
+    immersionTagline: {
+        fontSize: 11, fontWeight: 600, color: '#6b7280',
+        textTransform: 'uppercase' as const, letterSpacing: '0.5px',
+    },
+    immersionTitle: {
+        fontSize: 14, fontWeight: 700, color: '#065f46',
+        margin: '0 0 6px', lineHeight: 1.3,
+    },
+    immersionDesc: {
+        fontSize: 12, color: '#6b7280', margin: '0 0 10px', lineHeight: 1.5,
+    },
+    immersionChunks: {
+        display: 'flex', flexWrap: 'wrap' as const, gap: 6, marginBottom: 10,
+    },
+    immersionChunk: {
+        fontSize: 13, fontWeight: 600, color: '#059669',
+        padding: '3px 10px', borderRadius: 20,
+        background: '#dcfce7', border: '1px solid #bbf7d0',
+    },
+    immersionLabel: {
+        fontSize: 11, color: '#9ca3af', fontStyle: 'italic' as const,
+        margin: '0 0 12px', lineHeight: 1.4,
+    },
+    immersionBtn: {
+        display: 'inline-block', padding: '9px 20px', borderRadius: 10,
+        background: '#059669', color: 'white',
+        fontSize: 13, fontWeight: 700, textDecoration: 'none',
+        letterSpacing: '0.2px',
+    },
+
+    // Assembly controls
+    assemblyControlRow: {
+        display: 'flex', gap: 8, alignItems: 'center',
+        flexWrap: 'wrap' as const, marginBottom: 8,
+    },
+
+    // Mic button states
+    micBtn: {
+        padding: '9px 16px', borderRadius: 12, border: '2px solid #d1d5db',
+        background: 'white', color: '#374151',
+        fontSize: 14, fontWeight: 600, cursor: 'pointer',
+        transition: 'all 0.15s',
+    },
+    micBtnActive: {
+        borderColor: '#ef4444', background: '#fef2f2', color: '#dc2626',
+        animation: 'pulse 1s ease-in-out infinite',
+    },
+
+    // Transcript area
+    transcriptBox: {
+        width: '100%', padding: '10px 14px', borderRadius: 10,
+        background: '#f9fafb', border: '1px solid #e5e7eb',
+        marginBottom: 8, textAlign: 'left' as const, lineHeight: 1.5,
+    },
+    transcriptLabel: { fontSize: 11, color: '#9ca3af', fontWeight: 600 },
+    transcriptText: { fontSize: 13, color: '#374151' },
+    missingWords: {
+        marginTop: 6, display: 'flex', flexWrap: 'wrap' as const,
+        gap: 4, alignItems: 'center',
+        fontSize: 12, color: '#6b7280',
+    },
+    missingWord: {
+        padding: '1px 8px', borderRadius: 6,
+        background: '#fee2e2', color: '#dc2626',
+        fontWeight: 600, fontSize: 12,
+    },
+    tryBlocksBtn: {
+        marginLeft: 8, padding: '3px 10px', borderRadius: 8,
+        border: '1px solid #d1d5db', background: 'white',
+        fontSize: 11, color: '#6b7280', cursor: 'pointer',
+    },
+
+    // Mic permission modal
+    micModalOverlay: {
+        position: 'fixed' as const, inset: 0,
+        background: 'rgba(0,0,0,0.45)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        zIndex: 200,
+    },
+    micModalCard: {
+        background: 'white', borderRadius: 20, padding: '32px 28px',
+        maxWidth: 340, width: '90%', textAlign: 'center' as const,
+        boxShadow: '0 20px 60px rgba(0,0,0,0.15)',
+    },
+    micModalIcon: { fontSize: 48, marginBottom: 12 },
+    micModalTitle: {
+        fontSize: 18, fontWeight: 800, color: '#1f2937',
+        margin: '0 0 8px',
+    },
+    micModalBody: {
+        fontSize: 14, color: '#6b7280', lineHeight: 1.6,
+        margin: '0 0 24px',
+    },
+    micModalBtns: {
+        display: 'flex', gap: 10, justifyContent: 'center',
+    },
+    micModalDeny: {
+        flex: 1, padding: '12px 0', borderRadius: 12,
+        border: '2px solid #e5e7eb', background: 'white',
+        fontSize: 15, fontWeight: 600, color: '#6b7280', cursor: 'pointer',
+    },
+    micModalAllow: {
+        flex: 1, padding: '12px 0', borderRadius: 12,
+        border: 'none', background: '#059669',
+        fontSize: 15, fontWeight: 700, color: 'white', cursor: 'pointer',
+    },
 };

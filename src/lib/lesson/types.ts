@@ -15,6 +15,9 @@ export interface SRSMetadata {
     interval: number;         // days until next review
     repetitions: number;      // total times reviewed
     lapses: number;           // times user got it wrong after learning
+    // Speech input tracking (Mission 10) — optional so existing queues stay valid
+    spokenAttempts?: number;  // lifetime spoken attempts for this word
+    spokenCorrect?: number;   // lifetime spoken successes
 }
 
 // ─── Word Entry (from IgboAPI) ───────────────────────────────
@@ -177,6 +180,9 @@ export interface SessionState {
     startedAt: number;
     completedAt: number | null;
     stepResults: StepResult[];
+    // Speech input tracking for the current session (Mission 10)
+    spokenAttempts: number;
+    spokenCorrect: number;
 }
 
 export interface StepResult {
