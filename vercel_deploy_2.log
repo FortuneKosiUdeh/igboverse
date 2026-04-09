@@ -1,0 +1,33 @@
+Vercel CLI 50.1.3
+Retrieving project…
+Deploying kokonuts-projects-d1e4d175/igboverse
+Inspect: https://vercel.com/kokonuts-projects-d1e4d175/igboverse/45v8C9oBTo1sWA8aKsLwPdQZ88De [1s]
+Production: https://igboverse-kqthri3lt-kokonuts-projects-d1e4d175.vercel.app [1s]
+https://igboverse-kqthri3lt-kokonuts-projects-d1e4d175.vercel.appBuilding...
+Building...
+Building: Running build in Washington, D.C., USA (East) – iad1
+Building: Build machine configuration: 2 cores, 8 GB
+Building: Retrieving list of deployment files...
+Building: Previous build caches not available.
+Building: Downloading 78 deployment files...
+Building: Running "vercel build"
+Building: Vercel CLI 50.15.1
+Building: Installing dependencies...
+Building: npm warn deprecated @supabase/auth-helpers-nextjs@0.15.0: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
+Building: npm warn deprecated next@15.5.4: This version has a security vulnerability. Please upgrade to a patched version. See https://nextjs.org/blog/CVE-2025-66478 for more details.
+Building: added 375 packages in 12s
+Building: 144 packages are looking for funding
+Building: run `npm fund` for details
+Building: Detected Next.js version: 15.5.4
+Building: Running "npm run build"
+Building: > igboverse@0.1.0 build
+Building: > next build
+Building: Attention: Next.js now collects completely anonymous telemetry regarding usage.
+Building: This information is used to shape Next.js' roadmap and prioritize features.
+Building: You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
+Building: https://nextjs.org/telemetry
+Building: ▲ Next.js 15.5.4
+Building: Creating an optimized production build ...
+Building: ✓ Compiled successfully in 6.3s
+Building: Linting and checking validity of types ...
+Error: Command "npm run build" exited with 1

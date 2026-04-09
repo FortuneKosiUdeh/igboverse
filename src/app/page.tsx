@@ -1,5 +1,5 @@
-import IgboverseApp from '@/components/ui/IgboverseApp'
+import IgboverseV2 from '@/components/ui/IgboverseV2'
 
 export default function Home() {
-  return <IgboverseApp />
+  return <IgboverseV2 />
 }

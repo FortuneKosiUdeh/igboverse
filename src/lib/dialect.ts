@@ -1,176 +1,109 @@
+'use client';
 /**
- * Dialect System — Verified against live IgboAPI responses.
+ * Dialect utilities for Igboverse.
  *
- * Layer A: Community Dialects (API-level)
- *   Exact dialect names returned by IgboAPI (e.g., Ọnịcha, Owere, Ngwa).
+ * Maps onboarding diagnostic dialect answers → IgboAPI community identifiers,
+ * and provides helpers for surfacing dialect variants in lesson steps.
  *
- * Layer B: Regional Groupings (App-level abstraction)
- *   Community dialects mapped to user-friendly regional groups.
- *
- * Data Integrity:
- *   - All community names come from verified IgboAPI responses.
- *   - Geographic mappings are established facts, not inventions.
- *   - No fabricated dialect differences.
+ * Bridge strategy: show Standard (Izugbe) as primary; dialect form secondary.
+ * Never suppress the home dialect — build the bridge, don't demolish the house.
  */
 
-// --- Layer B: Regional Groups (user-facing selection) ---
+import { WordEntry, DialectVariantEntry } from './lesson/types';
+import { loadDiagnostic } from '@/components/ui/OnboardingDiagnostic';
 
-export type DialectGroup = 'standard' | 'anambra' | 'imo' | 'abia' | 'enugu' | 'ebonyi';
-
-export interface DialectGroupInfo {
-    id: DialectGroup;
-    label: string;
-    description: string;
-    communities: string[]; // Community names that belong to this group
-}
-
-export const DIALECT_GROUPS: DialectGroupInfo[] = [
-    {
-        id: 'standard',
-        label: 'Standard Igbo',
-        description: 'Igbo Izugbe — the standard literary form',
-        communities: []
-    },
-    {
-        id: 'anambra',
-        label: 'Anambra-area',
-        description: 'Ọnịcha, Achala, Obosi, Ogidi, Ọka, Anam, Ajalị dialects',
-        communities: ['Ọnịcha', 'Achala', 'Obosi', 'Ogidi', 'Ọka', 'Anam', 'Ajalị']
-    },
-    {
-        id: 'imo',
-        label: 'Imo-area',
-        description: 'Owere, Mbaise, Isuama, Ihuoma, Amaifeke dialects',
-        communities: ['Owere', 'Mbaise', 'Isuama', 'Ihuoma', 'Amaifeke']
-    },
-    {
-        id: 'abia',
-        label: 'Abia-area',
-        description: 'Ngwa, Abịrịba, Mkpọọ, Ọhụhụ, Ụmụahịa dialects',
-        communities: ['Ngwa', 'Abịrịba', 'Mkpọọ', 'Ọhụhụ', 'Ụmụahịa']
-    },
-    {
-        id: 'enugu',
-        label: 'Enugu-area',
-        description: 'Nsụka, Ezeagu, Nkanụ dialects',
-        communities: ['Nsụka', 'Ezeagu', 'Nkanụ']
-    },
-    {
-        id: 'ebonyi',
-        label: 'Ebonyi-area',
-        description: 'Afiikpo, Ezaa, Ikwo, Ezzamgbo, Izii dialects',
-        communities: ['Afiikpo', 'Ezaa', 'Ikwo', 'Ezzamgbo', 'Izii']
-    }
-];
-
-// --- Layer A: Community → Group Mapping (API-level → App-level) ---
+// ─── IgboAPI community identifier map ────────────────────────────
 
 /**
- * Maps community dialect names (as returned by IgboAPI) to regional groups.
- * Every key here is a verified dialect name from live API responses.
+ * Maps the onboarding answer to the community string used in IgboAPI dialects[].
+ * Returns null for "Standard only" cases (Another dialect / Not sure).
  */
-export const COMMUNITY_TO_GROUP: Record<string, DialectGroup> = {
-    // Anambra-area
-    'Ọnịcha': 'anambra',
-    'Achala': 'anambra',
-    'Obosi': 'anambra',
-    'Ogidi': 'anambra',
-    'Ọka': 'anambra',
-    'Anam': 'anambra',
-    'Ajalị': 'anambra',
-    // Imo-area
-    'Owere': 'imo',
-    'Mbaise': 'imo',
-    'Isuama': 'imo',
-    'Ihuoma': 'imo',
-    'Amaifeke': 'imo',
-    // Abia-area
-    'Ngwa': 'abia',
-    'Abịrịba': 'abia',
-    'Mkpọọ': 'abia',
-    'Ọhụhụ': 'abia',
-    'Ụmụahịa': 'abia',
-    // Enugu-area
-    'Nsụka': 'enugu',
-    'Ezeagu': 'enugu',
-    'Nkanụ': 'enugu',
-    // Ebonyi-area
-    'Afiikpo': 'ebonyi',
-    'Ezaa': 'ebonyi',
-    'Ikwo': 'ebonyi',
-    'Ezzamgbo': 'ebonyi',
-    'Izii': 'ebonyi',
+const DIALECT_MAP: Record<string, string | null> = {
+    'Onitsha / Onicha': 'Onicha',
+    'Owerri / Owere':   'Owere',
+    'Enugu / Waawa':    'Waawa',
+    'Another dialect':  null,
+    'Not sure':         null,
 };
 
-// --- Dialect Variant (per-word) ---
+/** Human-readable short label for the dialect chip on the home screen */
+const DIALECT_LABEL_MAP: Record<string, string> = {
+    'Onitsha / Onicha': 'Onitsha',
+    'Owerri / Owere':   'Owerri',
+    'Enugu / Waawa':    'Enugu / Waawa',
+    'Another dialect':  'Local dialect',
+    'Not sure':         '',
+};
 
-export interface DialectVariant {
-    word: string;                   // The dialectal form of the word
-    pronunciation: string | null;   // Dialect-specific audio URL
-    communities: string[];          // Community names that use this form
-    groups: DialectGroup[];         // Resolved regional groups
-}
-
-// --- Dialect Preference (user state) ---
-
-const DIALECT_STORAGE_KEY = 'igboverse_selected_dialect';
-
-export function getSelectedDialect(): DialectGroup {
-    if (typeof window === 'undefined') return 'standard';
-    const stored = localStorage.getItem(DIALECT_STORAGE_KEY);
-    if (stored && isValidDialectGroup(stored)) return stored as DialectGroup;
-    return 'standard';
-}
-
-export function setSelectedDialect(group: DialectGroup): void {
-    if (typeof window === 'undefined') return;
-    localStorage.setItem(DIALECT_STORAGE_KEY, group);
-}
-
-function isValidDialectGroup(value: string): value is DialectGroup {
-    return ['standard', 'anambra', 'imo', 'abia', 'enugu', 'ebonyi'].includes(value);
-}
-
-// --- Dialect Resolution Utility ---
+// ─── Public helpers ───────────────────────────────────────────────
 
 /**
- * Given a list of dialect variants and a selected group,
- * returns the best matching variant or null (fallback to standard).
+ * Returns the IgboAPI community identifier for the user's dialect, or null
+ * if the user selected "Standard only" options.
  */
-export function resolveDialectVariant(
-    variants: DialectVariant[],
-    selectedGroup: DialectGroup
-): DialectVariant | null {
-    if (selectedGroup === 'standard') return null;
-    if (!variants || variants.length === 0) return null;
-
-    // Find first variant that belongs to the selected group
-    for (const variant of variants) {
-        if (variant.groups.includes(selectedGroup)) {
-            return variant;
-        }
-    }
-
-    // No match — fallback to standard (return null)
-    return null;
+export function getDialectId(): string | null {
+    const d = loadDiagnostic();
+    if (!d?.dialect) return null;
+    return DIALECT_MAP[d.dialect] ?? null;
 }
 
 /**
- * Resolves community names from the API to regional groups.
+ * Returns the short, human-readable dialect label for the home-screen chip.
+ * Returns empty string when no dialect is set or it's "Not sure".
  */
-export function resolveGroups(communities: string[]): DialectGroup[] {
-    const groups = new Set<DialectGroup>();
-    for (const community of communities) {
-        const group = COMMUNITY_TO_GROUP[community];
-        if (group) groups.add(group);
-    }
-    return Array.from(groups);
+export function getDialectLabel(): string {
+    const d = loadDiagnostic();
+    if (!d?.dialect) return '';
+    return DIALECT_LABEL_MAP[d.dialect] ?? '';
 }
 
 /**
- * Returns the label for a dialect group.
+ * Looks up the dialect variant entry for a word matching the user's dialect.
+ * Returns null if no matching dialect variant exists.
  */
-export function getDialectGroupLabel(group: DialectGroup): string {
-    const info = DIALECT_GROUPS.find(g => g.id === group);
-    return info?.label ?? 'Standard Igbo';
+export function getDialectVariant(word: WordEntry): DialectVariantEntry | null {
+    const dialectId = getDialectId();
+    if (!dialectId || !word.dialects?.length) return null;
+
+    return (
+        word.dialects.find(d =>
+            d.communities.some(c =>
+                c.toLowerCase().includes(dialectId.toLowerCase())
+            )
+        ) ?? null
+    );
+}
+
+// ─── Onitsha -rV → -lV suffix bridging ───────────────────────────
+
+/**
+ * Onitsha Igbo systematically replaces the Standard -rV past suffix with -lV.
+ * e.g. "sìrì" → "sìlì", "rụọ" → "lụọ"
+ *
+ * Given a Standard Igbo word, returns the Onitsha form if the user's dialect
+ * is Onitsha. Returns null otherwise, or if the word doesn't match the pattern.
+ */
+export function toOnitshaPast(standardForm: string): string | null {
+    const dialectId = getDialectId();
+    if (dialectId !== 'Onicha') return null;
+
+    // Match a consonant cluster followed by vowel + r + vowel (the -rV pattern)
+    // Simple heuristic: replace 'r' followed by a vowel at end of a syllable
+    const converted = standardForm
+        .replace(/r([aeioụịọu])/gi, 'l$1')
+        .replace(/ri\b/gi, 'li')
+        .replace(/re\b/gi, 'le');
+
+    return converted !== standardForm ? converted : null;
+}
+
+/**
+ * Returns true if the user is an Onitsha dialect learner and the two forms
+ * are related by the -rV → -lV shift (so both should be accepted as correct).
+ */
+export function isOnitshaPairOf(standard: string, attempt: string): boolean {
+    const dialectId = getDialectId();
+    if (dialectId !== 'Onicha') return false;
+    const onitsha = toOnitshaPast(standard);
+    return onitsha !== null && onitsha.toLowerCase() === attempt.toLowerCase();
 }
