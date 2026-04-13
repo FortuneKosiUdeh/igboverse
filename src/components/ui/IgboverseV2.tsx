@@ -141,8 +141,11 @@ export default function IgboverseV2() {
 
     // ─── Speech Recognition (Mission 10) ────────────────────────
     // Feature-detect once on mount; stays null if API unavailable.
-    const speechSupported = typeof window !== 'undefined' &&
-        !!(window.SpeechRecognition || (window as Record<string, unknown>).webkitSpeechRecognition);
+    // The Web Speech API is not fully typed in TypeScript's DOM lib,
+    // so we use explicit `any` casts throughout this feature.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const _w = typeof window !== 'undefined' ? (window as unknown as Record<string, any>) : null;
+    const speechSupported = !!(_w?.SpeechRecognition || _w?.webkitSpeechRecognition);
     const [micPermGranted, setMicPermGranted] = useState<boolean>(() => {
         if (typeof window === 'undefined') return false;
         return localStorage.getItem('igboverse_mic_granted') === 'true';
@@ -151,7 +154,8 @@ export default function IgboverseV2() {
     const [speechRecording, setSpeechRecording] = useState(false);
     const [speechTranscript, setSpeechTranscript] = useState<string | null>(null);
     const [speechMissing, setSpeechMissing] = useState<string[]>([]); // words not found
-    const recognizerRef = useRef<SpeechRecognition | null>(null);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const recognizerRef = useRef<any>(null);
 
     // ─── Init ───────────────────────────────────────────────────
 
@@ -364,14 +368,14 @@ export default function IgboverseV2() {
                 correct = true;
                 break;
             case 'assembly':
+                // SUBMIT_SPOKEN_CORRECT: speech handler already confirmed correctness
                 if (answer === 'SUBMIT_SPOKEN_CORRECT') {
-                    handleCorrect(currentStep);
-                    return;
+                    correct = true;
+                } else {
+                    // Block-tap path
+                    correct = JSON.stringify(assemblyOrder) === JSON.stringify(currentStep.correctOrder);
                 }
-                const finalOrder = assemblyOrder;
-                const isCorrectOrder = JSON.stringify(finalOrder) === JSON.stringify(currentStep.correctOrder);
-                isCorrectOrder ? handleCorrect(currentStep) : handleIncorrect(currentStep);
-                return;
+                break;
             default:
                 correct = true; // exposure is always "correct"
         }
@@ -685,14 +689,16 @@ export default function IgboverseV2() {
         setSpeechRecording(true);
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const SR = (window.SpeechRecognition || (window as any).webkitSpeechRecognition) as typeof SpeechRecognition;
+        const _ww = window as unknown as Record<string, any>;
+        const SR = (_ww.SpeechRecognition || _ww.webkitSpeechRecognition) as new () => any;
         const rec = new SR();
         rec.lang = 'ig';
         rec.interimResults = false;
         rec.maxAlternatives = 3;
         recognizerRef.current = rec;
 
-        rec.onresult = (event: SpeechRecognitionEvent) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        rec.onresult = (event: any) => {
             // Pick the top alternative
             const transcript = event.results[0][0].transcript;
             setSpeechTranscript(transcript);
