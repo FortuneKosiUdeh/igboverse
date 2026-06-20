@@ -41,7 +41,8 @@ self.addEventListener('fetch', (event) => {
         caches.open(CACHE_NAME).then(async (cache) => {
             const cached = await cache.match(event.request);
             const networkFetch = fetch(event.request).then((response) => {
-                if (response.ok) {
+                // Cache API forbids storing POST responses — only cache GETs
+                if (response.ok && event.request.method === 'GET') {
                     cache.put(event.request, response.clone());
                 }
                 return response;

@@ -93,11 +93,9 @@ export default function IgboverseV2() {
     });
     const [srsQueue, setSrsQueue] = useState<SRSMetadata[]>([]);
 
-    // Onboarding gate — check localStorage synchronously so there's no flash
-    const [showOnboarding, setShowOnboarding] = useState(() => {
-        if (typeof window === 'undefined') return false;
-        return localStorage.getItem(ONBOARDING_KEY) !== 'true';
-    });
+    // Onboarding gate — resolved in useEffect to avoid SSR hydration mismatch.
+    // Starts false on both server and client; useEffect sets the real value after mount.
+    const [showOnboarding, setShowOnboarding] = useState(false);
 
     // UI state
     const [screen, setScreen] = useState<Screen>('loading');
@@ -133,23 +131,19 @@ export default function IgboverseV2() {
     const showResultRef = useRef(false);
     useEffect(() => { showResultRef.current = showResult; }, [showResult]);
 
-    // Sync state
-    const [userId, setUserId] = useState<string | null>(getCachedUserId());
+    // Sync state — userId resolved in useEffect (localStorage unavailable on server)
+    const [userId, setUserId] = useState<string | null>(null);
     const [claimEmail, setClaimEmail] = useState('');
     const [claimStatus, setClaimStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
     const [showClaimPanel, setShowClaimPanel] = useState(false);
 
     // ─── Speech Recognition (Mission 10) ────────────────────────
-    // Feature-detect once on mount; stays null if API unavailable.
-    // The Web Speech API is not fully typed in TypeScript's DOM lib,
-    // so we use explicit `any` casts throughout this feature.
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const _w = typeof window !== 'undefined' ? (window as unknown as Record<string, any>) : null;
-    const speechSupported = !!(_w?.SpeechRecognition || _w?.webkitSpeechRecognition);
-    const [micPermGranted, setMicPermGranted] = useState<boolean>(() => {
-        if (typeof window === 'undefined') return false;
-        return localStorage.getItem('igboverse_mic_granted') === 'true';
-    });
+    // speechSupported is set in a useEffect so server and client
+    // both start as false — avoiding hydration mismatch / error #310.
+    const [speechSupported, setSpeechSupported] = useState(false);
+    // Starts false on both SSR and client — localStorage read deferred to useEffect
+    // to prevent hydration mismatch (server: false, client with returning user: true).
+    const [micPermGranted, setMicPermGranted] = useState(false);
     const [showMicModal, setShowMicModal] = useState(false);
     const [speechRecording, setSpeechRecording] = useState(false);
     const [speechTranscript, setSpeechTranscript] = useState<string | null>(null);
@@ -159,8 +153,24 @@ export default function IgboverseV2() {
 
     // ─── Init ───────────────────────────────────────────────────
 
+    // Detect Web Speech API support after hydration (client-only).
+    // Also resolves micPermGranted here — reading localStorage in a useState
+    // lazy initializer causes a hydration mismatch when a returning user has
+    // 'igboverse_mic_granted'='true' stored (server renders false, client renders true).
+    useEffect(() => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const w = window as unknown as Record<string, any>;
+        setSpeechSupported(!!(w.SpeechRecognition || w.webkitSpeechRecognition));
+        setMicPermGranted(localStorage.getItem('igboverse_mic_granted') === 'true');
+    }, []);
+
     useEffect(() => {
         async function init() {
+            // ── 0. Resolve client-only state (can't read localStorage on server) ──
+            setShowOnboarding(localStorage.getItem(ONBOARDING_KEY) !== 'true');
+            const cachedUid = getCachedUserId();
+            if (cachedUid) setUserId(cachedUid);
+
             // ── 1. Load from localStorage immediately (fast path) ──
             const localProfile = loadProfile();
             const localSrs     = loadSRSQueue();
@@ -178,6 +188,7 @@ export default function IgboverseV2() {
             }
 
             setScreen('home'); // show home instantly from localStorage
+
 
             // ── 2. Anonymous auth (async, non-blocking) ────────────
             const uid = await initializeUser();
@@ -488,6 +499,10 @@ export default function IgboverseV2() {
             setAssemblyTimedOut(false);
             setTimedOutSentence('');
             setAssemblyTimerPct(1);
+            // Reset speech state so transcript from previous step doesn't bleed through
+            setSpeechTranscript(null);
+            setSpeechMissing([]);
+            setSpeechRecording(false);
             stepStartTime.current = Date.now();
         }
     }, [session, lesson, profile, userId]);
@@ -496,14 +511,44 @@ export default function IgboverseV2() {
     useEffect(() => { nextStepRef.current = nextStep; }, [nextStep]);
 
 
-    // ─── Auto-advance exposure steps ───────────────────────────
+    // ─── Step audio — ALWAYS 3 calls to maintain stable hook order ─────────
+    // Exposure steps need 3 sources (main, dialect, sentence).
+    // All other types only use audioMain. Calling 3× unconditionally keeps the
+    // hook count identical on every render regardless of step type.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const _cs = currentStep as any;
+    const audioMain     = useStepAudio(_cs?.audioUrl ?? null);
+    const audioDialect  = useStepAudio(
+        currentStep?.type === 'exposure' ? (_cs?.dialectAudioUrl  ?? null) : null
+    );
+    const audioSentence = useStepAudio(
+        currentStep?.type === 'exposure' ? (_cs?.exampleAudioUrl ?? null) : null
+    );
 
+    // Auto-play word audio when an exposure step loads
     useEffect(() => {
-        if (currentStep?.type === 'exposure' && !showResult) {
-            // Exposure: auto-advance after showing the card for a moment
-            // User taps to continue
-        }
-    }, [currentStep, showResult]);
+        if (currentStep?.type === 'exposure' && audioMain.canPlay) audioMain.play();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [audioMain.canPlay, currentStep?.type]);
+
+    // Auto-advance exposure steps after autoAdvanceMs (default 3 s)
+    useEffect(() => {
+        if (currentStep?.type !== 'exposure' || showResult) return;
+        const ms = (_cs?.autoAdvanceMs as number | undefined) ?? 3000;
+        const t = setTimeout(() => nextStepRef.current(), ms);
+        return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [currentStep?.wordId, currentStep?.type, showResult]);
+
+    // Play correct word audio 350 ms after a recognition answer
+    useEffect(() => {
+        if (currentStep?.type !== 'recognition') return;
+        if (!showResult || !isCorrect || !_cs?.audioUrl) return;
+        const t = setTimeout(() => audioMain.play(), 350);
+        return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [showResult, isCorrect, currentStep?.type]);
+
 
     // ─── Assembly timer effects ────────────────────────────────
     // Runs whenever we move to a new step OR showResult changes.
@@ -1293,34 +1338,14 @@ export default function IgboverseV2() {
 
     // Exposure: show the word — auto-plays on mount, tap-to-replay
     function renderExposure(step: LessonStep & { type: 'exposure' }) {
-        // eslint-disable-next-line react-hooks/rules-of-hooks
-        const { play, canPlay } = useStepAudio(step.audioUrl);
-        // eslint-disable-next-line react-hooks/rules-of-hooks
-        const { play: playDialect, canPlay: canPlayDialect } = useStepAudio(
-            step.dialectAudioUrl ?? null
-        );
-        // eslint-disable-next-line react-hooks/rules-of-hooks
-        const { play: playSentenceAudio, canPlay: canPlaySentenceAudio } = useStepAudio(
-            step.exampleAudioUrl ?? null
-        );
-
-        // Auto-play Standard word audio once on mount
-        // eslint-disable-next-line react-hooks/rules-of-hooks
-        useEffect(() => {
-            if (canPlay) play();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-        }, [canPlay]);
-
-        // Auto-advance timer driven by step.autoAdvanceMs (5s chunk / 3s fallback)
-        // Cancelled automatically when component unmounts (next step renders)
-        // eslint-disable-next-line react-hooks/rules-of-hooks
-        useEffect(() => {
-            const ms = step.autoAdvanceMs ?? 3000;
-            const t = setTimeout(() => nextStepRef.current(), ms);
-            return () => clearTimeout(t);
-        // Re-run only when the word changes — not on every render
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-        }, [step.wordId]);
+        // Audio is handled by top-level hooks (audioMain, audioDialect, audioSentence).
+        // Auto-play and auto-advance useEffects are also at the top level.
+        const play                = audioMain.play;
+        const canPlay             = audioMain.canPlay;
+        const playDialect         = audioDialect.play;
+        const canPlayDialect      = audioDialect.canPlay;
+        const playSentenceAudio   = audioSentence.play;
+        const canPlaySentenceAudio = audioSentence.canPlay;
 
         /**
          * Play the example sentence: try sentence audio URL first,
@@ -1429,18 +1454,8 @@ export default function IgboverseV2() {
 
     // Recognition: multiple choice — plays correct audio after selection
     function renderRecognition(step: LessonStep & { type: 'recognition' }) {
-        // eslint-disable-next-line react-hooks/rules-of-hooks
-        const { play: playCorrect } = useStepAudio(step.audioUrl);
-
-        // After a correct answer is shown, play the word audio
-        // eslint-disable-next-line react-hooks/rules-of-hooks
-        useEffect(() => {
-            if (showResult && isCorrect && step.audioUrl) {
-                const t = setTimeout(() => playCorrect(), 350);
-                return () => clearTimeout(t);
-            }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-        }, [showResult, isCorrect]);
+        // Audio and play-after-correct effect are at component top level.
+        const playCorrect = audioMain.play;
 
         // Visual label for the phase based on distractor type
         const phaseLabel =
@@ -1498,8 +1513,7 @@ export default function IgboverseV2() {
 
     // Cloze: fill in the blank — tap-to-hear only
     function renderCloze(step: LessonStep & { type: 'cloze' }) {
-        // eslint-disable-next-line react-hooks/rules-of-hooks
-        const { play, canPlay } = useStepAudio(step.audioUrl);
+        const { play, canPlay } = audioMain;
 
         return (
             <div style={styles.questionCard}>
@@ -1560,8 +1574,7 @@ export default function IgboverseV2() {
     // Assembly: sentence scramble — progress-bar timer + optional speech mode
     function renderAssembly(step: LessonStep & { type: 'assembly' }) {
         const remaining = step.chunks.filter(c => !assemblyOrder.includes(c));
-        // eslint-disable-next-line react-hooks/rules-of-hooks
-        const { play, canPlay } = useStepAudio(step.audioUrl);
+        const { play, canPlay } = audioMain;
 
         // Timer bar colour: green > 50%, amber 20-50%, red < 20%
         const barColor = assemblyTimerPct > 0.5
