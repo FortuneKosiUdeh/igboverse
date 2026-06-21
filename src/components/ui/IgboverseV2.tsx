@@ -78,6 +78,55 @@ function saveProfile(profile: UserProfile) {
 
 type Screen = 'loading' | 'home' | 'drill' | 'summary';
 
+// ─── Module-scoped custom hook ────────────────────────────────────────────────
+// Defined outside the component so React tracks a stable hook function across
+// all renders. Placing it inside the component body recreates the function
+// object each render, causing error #310 (hooks count drift) during hydration
+// recovery when the screen state transitions to 'drill'.
+/**
+ * useStepAudio — creates a single Audio instance for the current step's
+ * audio_url. Returns { play, canPlay } where canPlay is false if the
+ * URL is null or the browser failed to load it.
+ */
+function useStepAudio(url: string | null | undefined): { play: () => void; canPlay: boolean } {
+    const audioRef = useRef<HTMLAudioElement | null>(null);
+    const [canPlay, setCanPlay] = useState(false);
+
+    useEffect(() => {
+        if (!url) {
+            setCanPlay(false);
+            return;
+        }
+        const audio = new Audio(url);
+        audioRef.current = audio;
+
+        const onCanPlay = () => setCanPlay(true);
+        const onError   = () => setCanPlay(false);
+
+        audio.addEventListener('canplaythrough', onCanPlay);
+        audio.addEventListener('error', onError);
+
+        // Start loading (won't auto-play — just preloads)
+        audio.load();
+
+        return () => {
+            audio.removeEventListener('canplaythrough', onCanPlay);
+            audio.removeEventListener('error', onError);
+            audio.pause();
+            audioRef.current = null;
+            setCanPlay(false);
+        };
+    }, [url]);
+
+    const play = useCallback(() => {
+        if (!audioRef.current) return;
+        audioRef.current.currentTime = 0;
+        audioRef.current.play().catch(() => {});
+    }, []);
+
+    return { play, canPlay };
+}
+
 export default function IgboverseV2() {
     // Profile
     const [profile, setProfile] = useState({
@@ -151,17 +200,28 @@ export default function IgboverseV2() {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const recognizerRef = useRef<any>(null);
 
+    // ─── Client-only derived state (localStorage) ────────────────
+    // Both start null so SSR and the initial client render produce identical HTML.
+    // useEffect populates them after mount — hydration completes before any diff.
+    // Inline calls to getWeeklyDashboard() / getDialectLabel() during render caused
+    // error #418: server returned [] from localStorage (window undefined), client
+    // returned real stored data, React detected the HTML mismatch.
+    const [weeklyDash, setWeeklyDash] = useState<WeeklyDashboard | null>(null);
+    const [dialectLabel, setDialectLabel] = useState<string | null>(null);
+
     // ─── Init ───────────────────────────────────────────────────
 
-    // Detect Web Speech API support after hydration (client-only).
-    // Also resolves micPermGranted here — reading localStorage in a useState
-    // lazy initializer causes a hydration mismatch when a returning user has
-    // 'igboverse_mic_granted'='true' stored (server renders false, client renders true).
+    // Detect Web Speech API support, resolve mic permission, and populate client-only
+    // derived state — all deferred to useEffect so SSR and initial client render
+    // produce identical output (hydration safe).
     useEffect(() => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const w = window as unknown as Record<string, any>;
         setSpeechSupported(!!(w.SpeechRecognition || w.webkitSpeechRecognition));
         setMicPermGranted(localStorage.getItem('igboverse_mic_granted') === 'true');
+        // Populate dashboard and dialect chip from localStorage after mount.
+        setWeeklyDash(getWeeklyDashboard());
+        setDialectLabel(getDialectLabel());
     }, []);
 
     useEffect(() => {
@@ -627,50 +687,10 @@ export default function IgboverseV2() {
     }, [assemblyTimedOut]);
 
     // ─── Audio: per-step instance with cleanup ────────────────
-
-    /**
-     * useStepAudio — creates a single Audio instance for the current step's
-     * audio_url. Returns { play, canPlay } where canPlay is false if the
-     * URL is null or the browser failed to load it.
-     */
-    function useStepAudio(url: string | null | undefined): { play: () => void; canPlay: boolean } {
-        const audioRef = useRef<HTMLAudioElement | null>(null);
-        const [canPlay, setCanPlay] = useState(false);
-
-        useEffect(() => {
-            if (!url) {
-                setCanPlay(false);
-                return;
-            }
-            const audio = new Audio(url);
-            audioRef.current = audio;
-
-            const onCanPlay = () => setCanPlay(true);
-            const onError   = () => setCanPlay(false);
-
-            audio.addEventListener('canplaythrough', onCanPlay);
-            audio.addEventListener('error', onError);
-
-            // Start loading (won't auto-play — just preloads)
-            audio.load();
-
-            return () => {
-                audio.removeEventListener('canplaythrough', onCanPlay);
-                audio.removeEventListener('error', onError);
-                audio.pause();
-                audioRef.current = null;
-                setCanPlay(false);
-            };
-        }, [url]);
-
-        const play = useCallback(() => {
-            if (!audioRef.current) return;
-            audioRef.current.currentTime = 0;
-            audioRef.current.play().catch(() => {});
-        }, []);
-
-        return { play, canPlay };
-    }
+    // useStepAudio is defined at module scope (above this component) to satisfy
+    // React's rules of hooks. A hook function defined inside a component creates
+    // a new function object each render, which causes hook count drift (error #310)
+    // during hydration recovery when screen state transitions.
 
     // Tiny helper for one-shot plays (recognition correct-answer, etc.)
     const playAudio = (url: string | null | undefined) => {
@@ -837,34 +857,31 @@ export default function IgboverseV2() {
                         {profile.lessonsCompleted === 0
                             ? 'Start your Igbo journey — pick a topic below'
                             : (() => {
-                                const dash = getWeeklyDashboard();
-                                const chunks = dash.chunksPracticed;
+                                // weeklyDash is null on SSR and initial render (before useEffect).
+                                // Renders the same fallback as the server until client mounts.
+                                const chunks = weeklyDash?.chunksPracticed ?? 0;
                                 return chunks > 0
                                     ? `${chunks} chunk${chunks !== 1 ? 's' : ''} practiced · ${profile.lessonsCompleted} lessons done`
                                     : `${profile.lessonsCompleted} lessons done`;
                             })()}
                     </p>
 
-                    {/* Dialect chip */}
-                    {(() => {
-                        const label = getDialectLabel();
-                        if (!label) return null;
-                        return (
-                            <button
-                                id="dialect-chip"
-                                onClick={() => {
-                                    // Clear onboarding key so the diagnostic re-runs
-                                    localStorage.removeItem(DIAGNOSTIC_KEY);
-                                    localStorage.removeItem(ONBOARDING_KEY);
-                                    setShowOnboarding(true);
-                                }}
-                                style={styles.dialectChip}
-                                title="Tap to change your dialect setting"
-                            >
-                                🗣 {label} dialect
-                            </button>
-                        );
-                    })()}
+                    {/* Dialect chip — hidden until useEffect resolves dialectLabel client-side */}
+                    {dialectLabel && (
+                        <button
+                            id="dialect-chip"
+                            onClick={() => {
+                                // Clear onboarding key so the diagnostic re-runs
+                                localStorage.removeItem(DIAGNOSTIC_KEY);
+                                localStorage.removeItem(ONBOARDING_KEY);
+                                setShowOnboarding(true);
+                            }}
+                            style={styles.dialectChip}
+                            title="Tap to change your dialect setting"
+                        >
+                            🗣 {dialectLabel} dialect
+                        </button>
+                    )}
 
                     {/* Review buttons — amber urgency button when words are due */}
                     {dueCount > 0 && (
@@ -971,7 +988,17 @@ export default function IgboverseV2() {
 
                 {/* Fluency Metrics Dashboard */}
                 {(() => {
-                    const dash: WeeklyDashboard = getWeeklyDashboard();
+                    // weeklyDash is null until useEffect fires after mount.
+                    // When null, all metric fields are null → dashboard shows
+                    // 'Building baseline…' in every card, matching the SSR output.
+                    const dash: WeeklyDashboard = weeklyDash ?? {
+                        assemblyAvgMs: null,
+                        prevAssemblyAvgMs: null,
+                        suffixRate: null,
+                        tonalRate: null,
+                        chunksPracticed: 0,
+                        isBaseline: true,
+                    };
                     const getArrow = (curr: number | null, prev: number | null) => {
                         if (curr === null || prev === null || Math.abs(curr - prev) < 50) return null;
                         return curr < prev ? '↓' : '↑';
